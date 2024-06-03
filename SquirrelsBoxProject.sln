@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Base.Generic", "Base.Generic\Base.Generic.csproj", "{4D610B23-AF51-4AF3-9B1C-93361E37DA18}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Base.GoogleServices", "Base.GoogleServices\Base.GoogleServices.csproj", "{25B1E80C-3409-4497-9A10-9101AC578BFC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Base.Security", "Base.Security\Base.Security.csproj", "{EE253905-B5AB-4B63-A19F-6D45BEE0637E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SquirrelsBox.Storage", "SquirrelsBox.Storage\SquirrelsBox.Storage.csproj", "{44F0D28A-0146-4640-B1B8-9AA3437A6B11}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SquirrelsBox.Authentication", "SquirrelsBox.Authentication\SquirrelsBox.Authentication.csproj", "{E619D69B-471D-45A2-82F6-8203A23F7DD3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SquirrelsBox.Api.Gateway", "SquirrelsBox.Api.Gateway\SquirrelsBox.Api.Gateway.csproj", "{CC6FA6E5-C64A-49C8-A3D5-F893148014DA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4D610B23-AF51-4AF3-9B1C-93361E37DA18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D610B23-AF51-4AF3-9B1C-93361E37DA18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D610B23-AF51-4AF3-9B1C-93361E37DA18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D610B23-AF51-4AF3-9B1C-93361E37DA18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25B1E80C-3409-4497-9A10-9101AC578BFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25B1E80C-3409-4497-9A10-9101AC578BFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25B1E80C-3409-4497-9A10-9101AC578BFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25B1E80C-3409-4497-9A10-9101AC578BFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE253905-B5AB-4B63-A19F-6D45BEE0637E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE253905-B5AB-4B63-A19F-6D45BEE0637E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE253905-B5AB-4B63-A19F-6D45BEE0637E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE253905-B5AB-4B63-A19F-6D45BEE0637E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44F0D28A-0146-4640-B1B8-9AA3437A6B11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44F0D28A-0146-4640-B1B8-9AA3437A6B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44F0D28A-0146-4640-B1B8-9AA3437A6B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44F0D28A-0146-4640-B1B8-9AA3437A6B11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E619D69B-471D-45A2-82F6-8203A23F7DD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E619D69B-471D-45A2-82F6-8203A23F7DD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E619D69B-471D-45A2-82F6-8203A23F7DD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E619D69B-471D-45A2-82F6-8203A23F7DD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC6FA6E5-C64A-49C8-A3D5-F893148014DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC6FA6E5-C64A-49C8-A3D5-F893148014DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC6FA6E5-C64A-49C8-A3D5-F893148014DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC6FA6E5-C64A-49C8-A3D5-F893148014DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A5B04705-9475-4092-BD59-2A770FC32AD9}
+	EndGlobalSection
+EndGlobal

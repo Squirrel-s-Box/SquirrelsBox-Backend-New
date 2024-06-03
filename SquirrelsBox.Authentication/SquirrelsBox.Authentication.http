@@ -1,0 +1,6 @@
+@SquirrelsBox.Authentication_HostAddress = http://localhost:5031
+
+GET {{SquirrelsBox.Authentication_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

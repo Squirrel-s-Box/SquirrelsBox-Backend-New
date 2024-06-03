@@ -1,0 +1,6 @@
+@SquirrelsBox.Api.Gateway_HostAddress = http://localhost:5108
+
+GET {{SquirrelsBox.Api.Gateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
