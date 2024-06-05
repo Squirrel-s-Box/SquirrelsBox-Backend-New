@@ -8,11 +8,11 @@ namespace SquirrelsBox.Storage.Services
 {
     public class BoxService : IGenericService<Box, BoxResponse>, IGenericReadService<Box, BoxResponse>
     {
-        private readonly IGenericRepository<Box> _repository;
+        private readonly IGenericRepositoryWithCascade<Box> _repository;
         private readonly IGenericReadRepository<Box> _readRepository;
         private readonly IUnitOfWork<AppDbContext> _unitOfWork;
          
-        public BoxService(IGenericRepository<Box> repository, IGenericReadRepository<Box> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
+        public BoxService(IGenericRepositoryWithCascade<Box> repository, IGenericReadRepository<Box> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
         {
             _repository = repository;
             _readRepository = readRepository;
@@ -27,7 +27,7 @@ namespace SquirrelsBox.Storage.Services
 
             try
             {
-                _repository.Delete(result);
+                _repository.DeleteCascade(result, true);
                 await _unitOfWork.CompleteAsync();
 
                 return new BoxResponse(result);

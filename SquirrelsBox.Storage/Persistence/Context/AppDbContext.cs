@@ -41,12 +41,12 @@ namespace SquirrelsBox.Storage.Persistence.Context
                 entity.HasMany(b => b.BoxSectionsList)
                     .WithOne(bsl => bsl.Box)
                     .HasForeignKey(bsl => bsl.BoxId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(b => b.SharedBoxes)
                     .WithOne(sb => sb.Box)
                     .HasForeignKey(sb => sb.BoxId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<Section>(entity =>
@@ -63,12 +63,12 @@ namespace SquirrelsBox.Storage.Persistence.Context
                 entity.HasMany(s => s.BoxSectionsList)
                     .WithOne(bsl => bsl.Section)
                     .HasForeignKey(bsl => bsl.SectionId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(s => s.SectionItemsList)
                     .WithOne(sil => sil.Section)
                     .HasForeignKey(sil => sil.SectionId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<Item>(entity =>
@@ -87,7 +87,7 @@ namespace SquirrelsBox.Storage.Persistence.Context
                 entity.HasMany(i => i.SectionItemsList)
                     .WithOne(sil => sil.Item)
                     .HasForeignKey(sil => sil.ItemId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<Spec>(entity =>
@@ -105,7 +105,7 @@ namespace SquirrelsBox.Storage.Persistence.Context
                 entity.HasMany(ps => ps.ItemSpecsList)
                     .WithOne(psil => psil.Spec)
                     .HasForeignKey(psil => psil.SpecId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<BoxSectionRelationship>()
@@ -114,12 +114,14 @@ namespace SquirrelsBox.Storage.Persistence.Context
             builder.Entity<BoxSectionRelationship>()
                 .HasOne(bsl => bsl.Box)
                 .WithMany(b => b.BoxSectionsList)
-                .HasForeignKey(bsl => bsl.BoxId);
+                .HasForeignKey(bsl => bsl.BoxId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<BoxSectionRelationship>()
                 .HasOne(bsl => bsl.Section)
                 .WithMany(s => s.BoxSectionsList)
-                .HasForeignKey(bsl => bsl.SectionId);
+                .HasForeignKey(bsl => bsl.SectionId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<SectionItemRelationship>()
                 .HasKey(sil => new { sil.SectionId, sil.ItemId });
@@ -127,12 +129,14 @@ namespace SquirrelsBox.Storage.Persistence.Context
             builder.Entity<SectionItemRelationship>()
                 .HasOne(sil => sil.Section)
                 .WithMany(s => s.SectionItemsList)
-                .HasForeignKey(sil => sil.SectionId);
+                .HasForeignKey(sil => sil.SectionId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<SectionItemRelationship>()
                 .HasOne(sil => sil.Item)
                 .WithMany(i => i.SectionItemsList)
-                .HasForeignKey(sil => sil.ItemId);
+                .HasForeignKey(sil => sil.ItemId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<ItemSpecRelationship>()
                 .HasKey(psil => new { psil.ItemId, psil.SpecId });
@@ -140,13 +144,14 @@ namespace SquirrelsBox.Storage.Persistence.Context
             builder.Entity<ItemSpecRelationship>()
                 .HasOne(psil => psil.Item)
                 .WithMany(i => i.ItemSpecsList)
-                .HasForeignKey(psil => psil.ItemId);
+                .HasForeignKey(psil => psil.ItemId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<ItemSpecRelationship>()
                 .HasOne(psil => psil.Spec)
                 .WithMany(s => s.ItemSpecsList)
-                .HasForeignKey(psil => psil.SpecId);
-
+                .HasForeignKey(psil => psil.SpecId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.UseSnakeCaseNamingConvention();
         }

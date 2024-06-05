@@ -15,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Repositories init
-builder.Services.AddScoped<IGenericRepository<Box>, BoxRepository>();
+builder.Services.AddScoped<IGenericRepositoryWithCascade<Box>, BoxRepository>();
 builder.Services.AddScoped<IGenericReadRepository<Box>, BoxRepository>();
 builder.Services.AddScoped<IGenericRepository<BoxSectionRelationship>, BoxSectionRelationshipRepository>();
 builder.Services.AddScoped<IGenericReadRepository<BoxSectionRelationship>, BoxSectionRelationshipRepository>();

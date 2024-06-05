@@ -131,3 +131,54 @@ CREATE TABLE [dbo].[sections_items_list] (
 --     [state]            BIT           DEFAULT ((1)) NULL,
 --     PRIMARY KEY CLUSTERED ([id] ASC)
 -- );
+
+
+-- For boxes
+ALTER TABLE [dbo].[boxes_sections_list]
+DROP CONSTRAINT FK_boxes_sections_list_boxes;
+
+ALTER TABLE [dbo].[boxes_sections_list]
+ADD CONSTRAINT FK_boxes_sections_list_boxes
+FOREIGN KEY (box_id) REFERENCES [dbo].[boxes](id) ON DELETE CASCADE;
+
+-- For sections
+ALTER TABLE [dbo].[boxes_sections_list]
+DROP CONSTRAINT FK_boxes_sections_list_sections;
+
+ALTER TABLE [dbo].[boxes_sections_list]
+ADD CONSTRAINT FK_boxes_sections_list_sections
+FOREIGN KEY (section_id) REFERENCES [dbo].[sections](id) ON DELETE CASCADE;
+
+ALTER TABLE [dbo].[sections_items_list]
+DROP CONSTRAINT FK_sections_items_list_sections;
+
+ALTER TABLE [dbo].[sections_items_list]
+ADD CONSTRAINT FK_sections_items_list_sections
+FOREIGN KEY (section_id) REFERENCES [dbo].[sections](id) ON DELETE CASCADE;
+
+-- For items
+ALTER TABLE [dbo].[sections_items_list]
+DROP CONSTRAINT FK_sections_items_list_items;
+
+ALTER TABLE [dbo].[sections_items_list]
+ADD CONSTRAINT FK_sections_items_list_items
+FOREIGN KEY (item_id) REFERENCES [dbo].[items](id) ON DELETE CASCADE;
+
+ALTER TABLE [dbo].[personalized_specs_items_list]
+DROP CONSTRAINT FK_personalized_specs_items_list_items;
+
+ALTER TABLE [dbo].[personalized_specs_items_list]
+ADD CONSTRAINT FK_personalized_specs_items_list_items
+FOREIGN KEY (item_id) REFERENCES [dbo].[items](id) ON DELETE CASCADE;
+
+-- For personalized_specs
+ALTER TABLE [dbo].[personalized_specs_items_list]
+DROP CONSTRAINT FK_personalized_specs_items_list_personalized_specs;
+
+ALTER TABLE [dbo].[personalized_specs_items_list]
+ADD CONSTRAINT FK_personalized_specs_items_list_personalized_specs
+FOREIGN KEY (spec_id) REFERENCES [dbo].[personalized_specs](id) ON DELETE CASCADE;
+
+
+
+

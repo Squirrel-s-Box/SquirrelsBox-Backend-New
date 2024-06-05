@@ -14,4 +14,9 @@ namespace Base.Generic.Domain.Repositories
         void Update(T model);
         void Delete(T model);
     }
+
+    public interface IGenericRepositoryWithCascade<T> : IGenericRepository<T>
+    {
+        void DeleteCascade(T model, bool cascade = false);
+    }
 }
