@@ -17,9 +17,10 @@ namespace SquirrelsBox.Authentication.Persistence.Repositories
             await _context.UsersData.AddAsync(model);
         }
 
-        public void Delete(UserData model)
+        public async Task DeleteAsync(UserData model)
         {
             _context.UsersData.Remove(model);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<UserData> FindByCodeAsync(string value)

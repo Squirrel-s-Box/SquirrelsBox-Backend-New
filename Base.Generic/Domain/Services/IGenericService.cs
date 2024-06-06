@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Base.Generic.Domain.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,5 +14,10 @@ namespace Base.Generic.Domain.Services
         Task<R> FindByCodeAsync(string value);
         Task<R> UpdateAsync(int id, T model);
         Task<R> DeleteAsync(int id);
+    }
+
+    public interface IGenericServiceWithCascade<T, R> : IGenericService<T, R>
+    {
+        Task<R> DeleteCascadeAsync(int id, bool cascade = false);
     }
 }

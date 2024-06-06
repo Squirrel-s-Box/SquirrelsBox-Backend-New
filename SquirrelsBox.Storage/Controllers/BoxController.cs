@@ -14,11 +14,11 @@ namespace SquirrelsBox.Storage.Controllers
     [ApiController]
     public class BoxController : ControllerBase
     {
-        private readonly IGenericService<Box, BoxResponse> _service;
+        private readonly IGenericServiceWithCascade<Box, BoxResponse> _service;
         private readonly IGenericReadService<Box, BoxResponse> _readService;
         private readonly IMapper _mapper;
 
-        public BoxController(IGenericService<Box, BoxResponse> service, IGenericReadService<Box, BoxResponse> readService, IMapper mapper)
+        public BoxController(IGenericServiceWithCascade<Box, BoxResponse> service, IGenericReadService<Box, BoxResponse> readService, IMapper mapper)
         {
             _service = service;
             _readService = readService;
@@ -78,13 +78,13 @@ namespace SquirrelsBox.Storage.Controllers
             return Ok(itemResource);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        [HttpDelete("{id}/{cascade}")]
+        public async Task<IActionResult> DeleteAsync(int id, bool cascade)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
-            var result = await _service.DeleteAsync(id);
+            var result = await _service.DeleteCascadeAsync(id, cascade);
 
             if (!result.Success)
                 return BadRequest(result.Message);

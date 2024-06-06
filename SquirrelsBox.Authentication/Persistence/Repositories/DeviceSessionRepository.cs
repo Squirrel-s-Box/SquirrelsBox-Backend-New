@@ -18,9 +18,10 @@ namespace SquirrelsBox.Authentication.Persistence.Repositories
             await _context.DevicesSessions.AddAsync(model);
         }
 
-        public void Delete(DeviceSession model)
+        public async Task DeleteAsync(DeviceSession model)
         {
             _context.DevicesSessions.Remove(model);
+            await _context.SaveChangesAsync();
         }
 
         public Task<DeviceSession> FindByCodeAsync(string value)

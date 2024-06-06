@@ -27,7 +27,7 @@ namespace SquirrelsBox.Storage.Services
 
             try
             {
-                _repository.Delete(result);
+                await _repository.DeleteAsync(result);
                 await _unitOfWork.CompleteAsync();
 
                 return new ItemSpecRelationshipResponse(result);

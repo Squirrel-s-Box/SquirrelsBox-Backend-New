@@ -17,38 +17,36 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
             await _context.Boxes.AddAsync(model);
         }
 
-        public void Delete(Box model)
+        public async Task DeleteAsync(Box model)
         {
             _context.Boxes.Remove(model);
+            await _context.SaveChangesAsync();
         }
 
-        public void DeleteCascade(Box model, bool cascade = false)
+        public async Task DeleteCascadeAsync(Box model, bool cascade)
         {
-            using var transaction = _context.Database.BeginTransaction();
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                Delete(model);
-
                 if (cascade)
                 {
                     var boxId = model.Id;
 
-                    // Get related sections, items, and personalized specs in a single query
-                    var relatedData = _context.BoxesSectionsList
-                                              .Where(bsr => bsr.BoxId == boxId)
-                                              .Select(bsr => new
-                                              {
-                                                  SectionId = bsr.SectionId,
-                                                  SectionItems = bsr.Section.SectionItemsList
-                                                                       .Select(sir => new
-                                                                       {
-                                                                           ItemId = sir.ItemId,
-                                                                           ItemSpecs = sir.Item.ItemSpecsList
-                                                                                                .Select(isr => isr.SpecId)
-                                                                       })
-                                              })
-                                              .ToList();
+                    var relatedData = await _context.BoxesSectionsList
+                        .Where(bsr => bsr.BoxId == boxId)
+                        .Select(bsr => new
+                        {
+                            SectionId = bsr.Section.Id, // Assuming 'Id' is the primary key of the Section entity
+                            SectionItems = bsr.Section.SectionItemsList
+                                .Select(sir => new
+                                {
+                                    ItemId = sir.Item.Id, // Assuming 'Id' is the primary key of the Item entity
+                                    ItemSpecs = sir.Item.ItemSpecsList
+                                        .Select(isr => isr.SpecId)
+                                })
+                        })
+                        .ToListAsync();
 
                     // Extract distinct IDs
                     var sectionIds = relatedData.Select(rd => rd.SectionId).Distinct().ToList();
@@ -56,39 +54,39 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
                     var specIds = relatedData.SelectMany(rd => rd.SectionItems.SelectMany(si => si.ItemSpecs)).Distinct().ToList();
 
                     // Bulk delete using raw SQL for better performance
-                    if (sectionIds.Any())
+                    if (sectionIds.Any() || itemIds.Any() || specIds.Any())
                     {
-                        var sectionIdsParam = string.Join(",", sectionIds);
-                        _context.Database.ExecuteSqlRawAsync($"DELETE FROM sections WHERE Id IN ({sectionIdsParam})");
-                    }
-                    if (itemIds.Any())
-                    {
-                        var itemIdsParam = string.Join(",", itemIds);
-                        _context.Database.ExecuteSqlRawAsync($"DELETE FROM items WHERE Id IN ({itemIdsParam})");
-                    }
-                    if (specIds.Any())
-                    {
-                        var specIdsParam = string.Join(",", specIds);
-                        _context.Database.ExecuteSqlRawAsync($"DELETE FROM personalized_specs WHERE Id IN ({specIdsParam})");
+                        var sectionIdsParam = sectionIds.Any() ? string.Join(",", sectionIds) : "NULL";
+                        var itemIdsParam = itemIds.Any() ? string.Join(",", itemIds) : "NULL";
+                        var specIdsParam = specIds.Any() ? string.Join(",", specIds) : "NULL";
+
+                        await _context.Database.ExecuteSqlRawAsync($@"
+                            DELETE FROM sections WHERE Id IN ({sectionIdsParam});
+                            DELETE FROM items WHERE Id IN ({itemIdsParam});
+                            DELETE FROM personalized_specs WHERE Id IN ({specIdsParam});
+                        ");
                     }
 
+
                     // Optionally, remove shared boxes if needed
-                    //var sharedBoxes = _context.SharedBox.Where(sb => sb.BoxId == boxId).ToList();
+                    //var sharedBoxes = await _context.SharedBox.Where(sb => sb.BoxId == boxId).ToListAsync();
                     //if (sharedBoxes.Any())
                     //{
                     //    _context.SharedBox.RemoveRange(sharedBoxes);
                     //}
                 }
+                await DeleteAsync(model);
 
-                _context.SaveChanges();
-                transaction.Commit();
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
             catch
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 throw;
             }
         }
+
 
         public async Task<Box> FindByCodeAsync(string value)
         {

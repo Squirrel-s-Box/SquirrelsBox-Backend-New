@@ -21,4 +21,10 @@ namespace SquirrelsBox.Storage.Resources
         public bool Favourite { get; set; }
         public bool State { get; set; }
     }
+
+    public class DeleteBoxResource
+    {
+        public string Id { get; set; }
+        public bool Cascade { get; set; }
+    }
 }

@@ -38,10 +38,11 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
         }
 
 
-        public void Delete(BoxSectionRelationship model)
+        public async Task DeleteAsync(BoxSectionRelationship model)
         {
             _context.BoxesSectionsList.Remove(model);
             _context.Sections.Remove(model.Section);
+            await _context.SaveChangesAsync();
         }
 
         public Task<BoxSectionRelationship> FindByCodeAsync(string value)

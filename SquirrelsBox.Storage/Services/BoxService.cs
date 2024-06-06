@@ -6,7 +6,7 @@ using SquirrelsBox.Storage.Persistence.Context;
 
 namespace SquirrelsBox.Storage.Services
 {
-    public class BoxService : IGenericService<Box, BoxResponse>, IGenericReadService<Box, BoxResponse>
+    public class BoxService : IGenericServiceWithCascade<Box, BoxResponse>, IGenericReadService<Box, BoxResponse>
     {
         private readonly IGenericRepositoryWithCascade<Box> _repository;
         private readonly IGenericReadRepository<Box> _readRepository;
@@ -19,7 +19,12 @@ namespace SquirrelsBox.Storage.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<BoxResponse> DeleteAsync(int id)
+        public Task<BoxResponse> DeleteAsync(int id)
+        {
+            throw new NotImplementedException("Use DeleteCascade method instead.");
+        }
+
+        public async Task<BoxResponse> DeleteCascadeAsync(int id, bool cascade)
         {
             var result = await _repository.FindByIdAsync(id);
             if (result == null)
@@ -27,7 +32,7 @@ namespace SquirrelsBox.Storage.Services
 
             try
             {
-                _repository.DeleteCascade(result, true);
+                await _repository.DeleteCascadeAsync(result, cascade);
                 await _unitOfWork.CompleteAsync();
 
                 return new BoxResponse(result);

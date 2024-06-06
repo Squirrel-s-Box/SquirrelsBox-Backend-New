@@ -12,11 +12,11 @@ namespace Base.Generic.Domain.Repositories
         Task<T> FindByIdAsync(int id);
         Task<T> FindByCodeAsync(string value);
         void Update(T model);
-        void Delete(T model);
+        Task DeleteAsync(T model);
     }
 
     public interface IGenericRepositoryWithCascade<T> : IGenericRepository<T>
     {
-        void DeleteCascade(T model, bool cascade = false);
+        Task DeleteCascadeAsync(T model, bool cascade = false);
     }
 }

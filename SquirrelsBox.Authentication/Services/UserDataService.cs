@@ -25,7 +25,7 @@ namespace SquirrelsBox.Authentication.Services
 
             try
             {
-                _repository.Delete(result);
+                await _repository.DeleteAsync(result);
                 await _unitOfWork.CompleteAsync();
 
                 return new UserDataResponse(result);

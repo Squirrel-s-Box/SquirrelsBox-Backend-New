@@ -181,4 +181,3 @@ FOREIGN KEY (spec_id) REFERENCES [dbo].[personalized_specs](id) ON DELETE CASCAD
 
 
 
-

@@ -18,9 +18,10 @@ namespace SquirrelsBox.Authentication.Persistence.Repositories
             await _context.AccessSessions.AddAsync(model);
         }
 
-        public void Delete(AccessSession model)
+        public async Task DeleteAsync(AccessSession model)
         {
             _context.AccessSessions.Remove(model);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<AccessSession> FindByCodeAsync(string value)

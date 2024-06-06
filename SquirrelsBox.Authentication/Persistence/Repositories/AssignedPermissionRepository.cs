@@ -3,6 +3,7 @@ using Base.Generic.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using SquirrelsBox.Authentication.Domain.Models;
 using SquirrelsBox.Authentication.Persistence.Context;
+using System.Runtime.CompilerServices;
 
 namespace SquirrelsBox.Authentication.Persistence.Repositories
 {
@@ -17,9 +18,10 @@ namespace SquirrelsBox.Authentication.Persistence.Repositories
             await _context.AssignedPermissions.AddAsync(model);
         }
 
-        public void Delete(AssignedPermission model)
+        public async Task DeleteAsync(AssignedPermission model)
         {
             _context.AssignedPermissions.Remove(model);
+            await _context.SaveChangesAsync();
         }
 
         public Task<AssignedPermission> FindByCodeAsync(string value)

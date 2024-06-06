@@ -25,10 +25,10 @@ namespace SquirrelsBox.Storage.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("sectionlist/{id}")]
-        public async Task<IActionResult> GetAllByIdCodeAsync(int id)
+        [HttpGet("sectionlist/{specId}")]
+        public async Task<IActionResult> GetAllByIdCodeAsync(int specId)
         {
-            var model = await _readService.ListAllByIdCodeAsync(id);
+            var model = await _readService.ListAllByIdCodeAsync(specId);
             var list = model.Select(response => _mapper.Map<ItemSpecRelationship, ReadItemSpecRelationshipResource>(response.Resource));
             return Ok(new { SectionList = list });
         }
