@@ -15,8 +15,6 @@ namespace SquirrelsBox.Storage.Persistence.Context
 
         public DbSet<BoxSectionRelationship> BoxesSectionsList { get; set; }
         public DbSet<SectionItemRelationship> SectionsItemsList { get; set; }
-        public DbSet<ItemSpecRelationship> PersonalizedSpecsItemsList { get; set; }
-
 
         public AppDbContext(DbContextOptions options) : base(options)
         {
@@ -88,6 +86,11 @@ namespace SquirrelsBox.Storage.Persistence.Context
                     .WithOne(sil => sil.Item)
                     .HasForeignKey(sil => sil.ItemId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(i => i.Specs)
+                    .WithOne(ps => ps.Item)
+                    .HasForeignKey(ps => ps.ItemId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<Spec>(entity =>
@@ -101,11 +104,6 @@ namespace SquirrelsBox.Storage.Persistence.Context
                 entity.Property(p => p.CreationDate).HasDefaultValueSql("GETDATE()");
                 entity.Property(p => p.LastUpdateDate);
                 entity.Property(p => p.Active).HasDefaultValue(true);
-
-                entity.HasMany(ps => ps.ItemSpecsList)
-                    .WithOne(psil => psil.Spec)
-                    .HasForeignKey(psil => psil.SpecId)
-                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             builder.Entity<BoxSectionRelationship>()
@@ -138,23 +136,9 @@ namespace SquirrelsBox.Storage.Persistence.Context
                 .HasForeignKey(sil => sil.ItemId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<ItemSpecRelationship>()
-                .HasKey(psil => new { psil.ItemId, psil.SpecId });
-
-            builder.Entity<ItemSpecRelationship>()
-                .HasOne(psil => psil.Item)
-                .WithMany(i => i.ItemSpecsList)
-                .HasForeignKey(psil => psil.ItemId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<ItemSpecRelationship>()
-                .HasOne(psil => psil.Spec)
-                .WithMany(s => s.ItemSpecsList)
-                .HasForeignKey(psil => psil.SpecId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             builder.UseSnakeCaseNamingConvention();
         }
+
 
         public async Task UpdateBoxSectionRelationship(int boxId, int sectionId, int newBoxId)
         {

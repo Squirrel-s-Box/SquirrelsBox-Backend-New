@@ -6,13 +6,13 @@ using SquirrelsBox.Storage.Persistence.Context;
 
 namespace SquirrelsBox.Storage.Services
 {
-    public class BoxSectionRelationshipService : IGenericService<BoxSectionRelationship, BoxSectionRelationshipResponse>, IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse>
+    public class BoxSectionRelationshipService : IGenericServiceWithCascade<BoxSectionRelationship, BoxSectionRelationshipResponse>, IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse>
     {
-        private readonly IGenericRepository<BoxSectionRelationship> _repository;
+        private readonly IGenericRepositoryWithCascade<BoxSectionRelationship> _repository;
         private readonly IGenericReadRepository<BoxSectionRelationship> _readRepository;
         private readonly IUnitOfWork<AppDbContext> _unitOfWork;
 
-        public BoxSectionRelationshipService(IGenericRepository<BoxSectionRelationship> repository, IGenericReadRepository<BoxSectionRelationship> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
+        public BoxSectionRelationshipService(IGenericRepositoryWithCascade<BoxSectionRelationship> repository, IGenericReadRepository<BoxSectionRelationship> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
         {
             _repository = repository;
             _readRepository = readRepository;
@@ -21,20 +21,25 @@ namespace SquirrelsBox.Storage.Services
 
         public async Task<BoxSectionRelationshipResponse> DeleteAsync(int id)
         {
+            throw new NotImplementedException("Use DeleteCascade method instead.");
+        }
+
+        public async Task<BoxSectionRelationshipResponse> DeleteCascadeAsync(int id, bool cascade)
+        {
             var result = await _repository.FindByIdAsync(id);
             if (result == null)
                 return new BoxSectionRelationshipResponse("Section not found");
 
             try
             {
-                await _repository.DeleteAsync(result);
+                await _repository.DeleteCascadeAsync(result, cascade);
                 await _unitOfWork.CompleteAsync();
 
                 return new BoxSectionRelationshipResponse(result);
             }
             catch (Exception e)
             {
-                return new BoxSectionRelationshipResponse($"An error occurred while deleting the Section: {e.Message}");
+                return new BoxSectionRelationshipResponse($"An error occurred while deleting the Box: {e.Message}");
             }
         }
 

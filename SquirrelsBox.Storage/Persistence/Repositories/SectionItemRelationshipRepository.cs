@@ -22,9 +22,9 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
 
         public async Task DeleteAsync(SectionItemRelationship model)
         {
-            _context.SectionsItemsList.Remove(model);
+            //_context.SectionsItemsList.Remove(model);
             _context.Items.Remove(model.Item);
-            await _context.SaveChangesAsync();
+             await _context.SaveChangesAsync();
         }
 
         public Task<SectionItemRelationship> FindByCodeAsync(string value)

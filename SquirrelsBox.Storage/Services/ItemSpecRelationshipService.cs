@@ -6,13 +6,13 @@ using SquirrelsBox.Storage.Persistence.Context;
 
 namespace SquirrelsBox.Storage.Services
 {
-    public class ItemSpecRelationshipService : IGenericService<ItemSpecRelationship, ItemSpecRelationshipResponse>, IGenericReadService<ItemSpecRelationship, ItemSpecRelationshipResponse>
+    public class ItemSpecRelationshipService : IGenericServiceWithMassive<Spec, ItemSpecRelationshipResponse>, IGenericReadService<Spec, ItemSpecRelationshipResponse>
     {
-        private readonly IGenericRepository<ItemSpecRelationship> _repository;
-        private readonly IGenericReadRepository<ItemSpecRelationship> _readRepository;
+        private readonly IGenericRepositoryWithMassive<Spec> _repository;
+        private readonly IGenericReadRepository<Spec> _readRepository;
         private readonly IUnitOfWork<AppDbContext> _unitOfWork;
 
-        public ItemSpecRelationshipService(IGenericRepository<ItemSpecRelationship> repository, IGenericReadRepository<ItemSpecRelationship> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
+        public ItemSpecRelationshipService(IGenericRepositoryWithMassive<Spec> repository, IGenericReadRepository<Spec> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
         {
             _repository = repository;
             _readRepository = readRepository;
@@ -70,27 +70,32 @@ namespace SquirrelsBox.Storage.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ItemSpecRelationshipResponse> SaveAsync(ItemSpecRelationship model)
+        public async Task<ItemSpecRelationshipResponse> SaveAsync(Spec model)
+        {
+            throw new NotImplementedException("Use SaveMassiveAsync method instead.");
+        }
+
+        public async Task<ItemSpecRelationshipResponse> SaveMassiveAsync(ICollection<Spec> modelList)
         {
             try
             {
-                model.Spec.Active = true;
-
-                model.Spec.CreationDate = DateTime.UtcNow;
-                model.Spec.LastUpdateDate = null;
-
-                await _repository.AddAsync(model);
+                foreach (var model in modelList)
+                {
+                    model.Active = true;
+                    model.CreationDate = DateTime.UtcNow;
+                    model.LastUpdateDate = null;
+                }
+                await _repository.AddMassiveAsync(modelList);
                 await _unitOfWork.CompleteAsync();
-
-                return new ItemSpecRelationshipResponse(model);
+                return new ItemSpecRelationshipResponse(modelList);
             }
             catch (Exception e)
             {
-                return new ItemSpecRelationshipResponse($"An error ocurred while saving the Spec: {e.Message}");
+                return new ItemSpecRelationshipResponse($"An error occurred while saving the Specs: {e.Message}");
             }
         }
 
-        public async Task<ItemSpecRelationshipResponse> UpdateAsync(int id, ItemSpecRelationship model)
+        public async Task<ItemSpecRelationshipResponse> UpdateAsync(int id, Spec model)
         {
             var result = await _repository.FindByIdAsync(id);
             if (result == null)
@@ -98,36 +103,21 @@ namespace SquirrelsBox.Storage.Services
 
             try
             {
-                if (model.ItemId != 0)
-                {
-                    //It works as th enew Box Id
-                    result.Spec.Id = model.ItemId;
-                    _repository.Update(result);
+                var lastItemId = result.ItemId;
 
-                    return new ItemSpecRelationshipResponse(result);
-                }
-                else
-                {
-                    var lastItemId = result.ItemId;
-                    var lastSpecId = result.SpecId;
+                result.HeaderName = model.HeaderName;
+                result.Value = model.Value;
+                result.ValueType = model.ValueType;
+                result.Active = model.Active;
+                result.LastUpdateDate = DateTime.UtcNow;
 
-                    result.ItemId = 0;
-                    result.SpecId = 0;
-                    result.Spec.HeaderName = model.Spec.HeaderName;
-                    result.Spec.Value = model.Spec.Value;
-                    result.Spec.ValueType = model.Spec.ValueType;
-                    result.Spec.Active = model.Spec.Active;
-                    result.Spec.LastUpdateDate = DateTime.UtcNow;
+                _repository.Update(result);
 
-                    _repository.Update(result);
+                result.ItemId = lastItemId;
 
-                    result.ItemId = lastItemId;
-                    result.SpecId = lastSpecId;
+                await _unitOfWork.CompleteAsync();
 
-                    await _unitOfWork.CompleteAsync();
-
-                    return new ItemSpecRelationshipResponse(result);
-                }
+                return new ItemSpecRelationshipResponse(result);
             }
             catch (Exception e)
             {

@@ -3,13 +3,16 @@ using SquirrelsBox.Storage.Domain.Models;
 
 namespace SquirrelsBox.Storage.Domain.Communication
 {
-    public class ItemSpecRelationshipResponse : BaseResponse<ItemSpecRelationship>
+    public class ItemSpecRelationshipResponse : BaseResponse<Spec>
     {
         public ItemSpecRelationshipResponse(string message) : base(message)
         {
         }
 
-        public ItemSpecRelationshipResponse(ItemSpecRelationship resource) : base(resource)
+        public ItemSpecRelationshipResponse(Spec resource) : base(resource)
+        {
+        }
+        public ItemSpecRelationshipResponse(ICollection<Spec> resource) : base(resource)
         {
         }
     }

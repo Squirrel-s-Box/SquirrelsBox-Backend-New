@@ -41,4 +41,10 @@ namespace SquirrelsBox.Storage.Resources
         public string Color { get; set; }
         public bool State { get; set; }
     }
+
+    public class DeleteSectionResource
+    {
+        public int Id { get; set; }
+        public bool Cascade { get; set; }
+    }
 }

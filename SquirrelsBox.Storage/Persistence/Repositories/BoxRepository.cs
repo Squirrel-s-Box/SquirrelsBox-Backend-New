@@ -39,31 +39,24 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
                         {
                             SectionId = bsr.Section.Id, // Assuming 'Id' is the primary key of the Section entity
                             SectionItems = bsr.Section.SectionItemsList
-                                .Select(sir => new
-                                {
-                                    ItemId = sir.Item.Id, // Assuming 'Id' is the primary key of the Item entity
-                                    ItemSpecs = sir.Item.ItemSpecsList
-                                        .Select(isr => isr.SpecId)
-                                })
+                                .Select(sir => sir.Item.Id) // Select only the ItemId
                         })
                         .ToListAsync();
 
                     // Extract distinct IDs
                     var sectionIds = relatedData.Select(rd => rd.SectionId).Distinct().ToList();
-                    var itemIds = relatedData.SelectMany(rd => rd.SectionItems.Select(si => si.ItemId)).Distinct().ToList();
-                    var specIds = relatedData.SelectMany(rd => rd.SectionItems.SelectMany(si => si.ItemSpecs)).Distinct().ToList();
+                    var itemIds = relatedData.SelectMany(rd => rd.SectionItems).Distinct().ToList();
 
                     // Bulk delete using raw SQL for better performance
-                    if (sectionIds.Any() || itemIds.Any() || specIds.Any())
+                    if (sectionIds.Any() || itemIds.Any())
                     {
                         var sectionIdsParam = sectionIds.Any() ? string.Join(",", sectionIds) : "NULL";
                         var itemIdsParam = itemIds.Any() ? string.Join(",", itemIds) : "NULL";
-                        var specIdsParam = specIds.Any() ? string.Join(",", specIds) : "NULL";
+
 
                         await _context.Database.ExecuteSqlRawAsync($@"
                             DELETE FROM sections WHERE Id IN ({sectionIdsParam});
                             DELETE FROM items WHERE Id IN ({itemIdsParam});
-                            DELETE FROM personalized_specs WHERE Id IN ({specIdsParam});
                         ");
                     }
 

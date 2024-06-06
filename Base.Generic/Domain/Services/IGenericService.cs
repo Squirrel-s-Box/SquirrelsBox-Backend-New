@@ -20,4 +20,9 @@ namespace Base.Generic.Domain.Services
     {
         Task<R> DeleteCascadeAsync(int id, bool cascade = false);
     }
+
+    public interface IGenericServiceWithMassive<T, R> : IGenericService<T, R>
+    {
+        Task<R> SaveMassiveAsync(ICollection<T> modelList);
+    }
 }

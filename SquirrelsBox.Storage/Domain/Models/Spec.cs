@@ -9,7 +9,8 @@ namespace SquirrelsBox.Storage.Domain.Models
         public string Value { get; set; }
         public string ValueType { get; set; }
         public bool Active { get; set; }
+        public int ItemId { get; set; }
 
-        public ICollection<ItemSpecRelationship> ItemSpecsList { get; set; }
+        public Item Item { get; set; }
     }
 }

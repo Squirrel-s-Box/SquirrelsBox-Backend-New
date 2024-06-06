@@ -14,11 +14,11 @@ namespace SquirrelsBox.Storage.Controllers
     [ApiController]
     public class BoxSectionRelationshipController : ControllerBase
     {
-        private readonly IGenericService<BoxSectionRelationship, BoxSectionRelationshipResponse> _service;
+        private readonly IGenericServiceWithCascade<BoxSectionRelationship, BoxSectionRelationshipResponse> _service;
         private readonly IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse> _readService;
         private readonly IMapper _mapper;
 
-        public BoxSectionRelationshipController(IGenericService<BoxSectionRelationship, BoxSectionRelationshipResponse> service, IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse> readService, IMapper mapper)
+        public BoxSectionRelationshipController(IGenericServiceWithCascade<BoxSectionRelationship, BoxSectionRelationshipResponse> service, IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse> readService, IMapper mapper)
         {
             _service = service;
             _readService = readService;
@@ -66,12 +66,12 @@ namespace SquirrelsBox.Storage.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(int id, bool cascade)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
-            var result = await _service.DeleteAsync(id);
+            var result = await _service.DeleteCascadeAsync(id, cascade);
 
             if (!result.Success)
                 return BadRequest(result.Message);

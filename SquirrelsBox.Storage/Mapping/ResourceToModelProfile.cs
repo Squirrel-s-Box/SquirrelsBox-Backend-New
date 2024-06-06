@@ -22,9 +22,9 @@ namespace SquirrelsBox.Storage.Mapping
             CreateMap<UpdateSectionItemListResource, SectionItemRelationship>();
             CreateMap<UpdateItemResource, Item>();
 
-            CreateMap<SaveItemSpecListResource, ItemSpecRelationship>();
+            //CreateMap<SaveItemSpecListResource, ItemSpecRelationship>();
             CreateMap<SaveSpecResource, Spec>();
-            CreateMap<UpdateItemSpecListResource, ItemSpecRelationship>();
+            //CreateMap<UpdateItemSpecListResource, ItemSpecRelationship>();
             CreateMap<UpdateSpecResource, Spec>();
         }
     }

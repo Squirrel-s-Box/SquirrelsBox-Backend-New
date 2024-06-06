@@ -50,43 +50,12 @@ CREATE TABLE [dbo].[devices_sessions] (
     FOREIGN KEY ([user_id]) REFERENCES [dbo].[access_sessions] ([id])
 );
 
-CREATE TABLE [dbo].[items] (
-    [id]               INT           IDENTITY (1, 1) NOT NULL,
-    [name]             NVARCHAR (60) NULL,
-    [description]      NVARCHAR (60) NULL,
-    [amount]           NVARCHAR (60) NULL,
-    [item_photo]       NVARCHAR (60) NULL,
-    [creation_date]    DATETIME      DEFAULT (getdate()) NULL,
-    [last_update_date] DATETIME      NULL,
-    [active]           BIT           CONSTRAINT [DEFAULT_items_active] DEFAULT ((1)) NULL,
-    PRIMARY KEY CLUSTERED ([id] ASC)
-);
-
 CREATE TABLE [dbo].[permissions] (
     [id]         INT           IDENTITY (1, 1) NOT NULL,
     [collection] NVARCHAR (60) NULL,
     [name]       NVARCHAR (60) NULL,
     [value]      NVARCHAR (60) NULL,
     PRIMARY KEY CLUSTERED ([id] ASC)
-);
-
-CREATE TABLE [dbo].[personalized_specs] (
-    [id]               INT           IDENTITY (1, 1) NOT NULL,
-    [header_name]      NVARCHAR (60) NULL,
-    [value]            NVARCHAR (60) NULL,
-    [value_type]       NVARCHAR (60) NULL,
-    [creation_date]    DATETIME      DEFAULT (getdate()) NULL,
-    [last_update_date] DATETIME      NULL,
-    [active]           BIT           CONSTRAINT [DEFAULT_personalized_specs_active] DEFAULT ((1)) NULL,
-    PRIMARY KEY CLUSTERED ([id] ASC)
-);
-
-CREATE TABLE [dbo].[personalized_specs_items_list] (
-    [item_id] INT NOT NULL,
-    [spec_id] INT NOT NULL,
-    PRIMARY KEY CLUSTERED ([item_id] ASC, [spec_id] ASC),
-    FOREIGN KEY ([item_id]) REFERENCES [dbo].[items] ([id]),
-    FOREIGN KEY ([spec_id]) REFERENCES [dbo].[personalized_specs] ([id])
 );
 
 CREATE TABLE [dbo].[sections] (
@@ -105,6 +74,31 @@ CREATE TABLE [dbo].[sections_items_list] (
     PRIMARY KEY CLUSTERED ([section_id] ASC, [item_id] ASC),
     FOREIGN KEY ([item_id]) REFERENCES [dbo].[items] ([id]),
     FOREIGN KEY ([section_id]) REFERENCES [dbo].[sections] ([id])
+);
+
+CREATE TABLE [dbo].[items] (
+    [id]               INT           IDENTITY (1, 1) NOT NULL,
+    [name]             NVARCHAR (60) NULL,
+    [description]      NVARCHAR (60) NULL,
+    [amount]           NVARCHAR (60) NULL,
+    [item_photo]       NVARCHAR (60) NULL,
+    [creation_date]    DATETIME      DEFAULT (getdate()) NULL,
+    [last_update_date] DATETIME      NULL,
+    [active]           BIT           CONSTRAINT [DEFAULT_items_active] DEFAULT ((1)) NULL,
+    PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[personalized_specs] (
+    [id]               INT           IDENTITY (1, 1) NOT NULL,
+    [item_id]          INT           NOT NULL,
+    [header_name]      NVARCHAR (60) NULL,
+    [value]            NVARCHAR (60) NULL,
+    [value_type]       NVARCHAR (60) NULL,
+    [creation_date]    DATETIME      DEFAULT (getdate()) NULL,
+    [last_update_date] DATETIME      NULL,
+    [active]           BIT           CONSTRAINT [DEFAULT_personalized_specs_active] DEFAULT ((1)) NULL,
+    PRIMARY KEY CLUSTERED ([id] ASC),
+    FOREIGN KEY ([item_id]) REFERENCES [dbo].[items] ([id]) ON DELETE CASCADE
 );
 
 -- CREATE TABLE [dbo].[shared_boxes] (
@@ -164,20 +158,12 @@ ALTER TABLE [dbo].[sections_items_list]
 ADD CONSTRAINT FK_sections_items_list_items
 FOREIGN KEY (item_id) REFERENCES [dbo].[items](id) ON DELETE CASCADE;
 
-ALTER TABLE [dbo].[personalized_specs_items_list]
-DROP CONSTRAINT FK_personalized_specs_items_list_items;
+-- ALTER TABLE [dbo].[personalized_specs_items_list]
+-- DROP CONSTRAINT FK_personalized_specs_items_list_items;
 
-ALTER TABLE [dbo].[personalized_specs_items_list]
-ADD CONSTRAINT FK_personalized_specs_items_list_items
-FOREIGN KEY (item_id) REFERENCES [dbo].[items](id) ON DELETE CASCADE;
-
--- For personalized_specs
-ALTER TABLE [dbo].[personalized_specs_items_list]
-DROP CONSTRAINT FK_personalized_specs_items_list_personalized_specs;
-
-ALTER TABLE [dbo].[personalized_specs_items_list]
-ADD CONSTRAINT FK_personalized_specs_items_list_personalized_specs
-FOREIGN KEY (spec_id) REFERENCES [dbo].[personalized_specs](id) ON DELETE CASCADE;
+-- ALTER TABLE [dbo].[personalized_specs_items_list]
+-- ADD CONSTRAINT FK_personalized_specs_items_list_items
+-- FOREIGN KEY (item_id) REFERENCES [dbo].[items](id) ON DELETE CASCADE;
 
 
 

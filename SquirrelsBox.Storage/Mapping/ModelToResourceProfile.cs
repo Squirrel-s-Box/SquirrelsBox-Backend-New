@@ -18,7 +18,6 @@ namespace SquirrelsBox.Storage.Mapping
             CreateMap<SectionItemRelationship, ReadSectionItemRelationshipResource>();
             CreateMap<Item, ReadItemResource>();
 
-            CreateMap<ItemSpecRelationship, ReadItemSpecRelationshipResource>();
             CreateMap<Spec, ReadSpecResource>();
 
 

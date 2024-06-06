@@ -12,6 +12,6 @@ namespace SquirrelsBox.Storage.Domain.Models
         public bool Active { get; set; }
 
         public ICollection<SectionItemRelationship> SectionItemsList { get; set; }
-        public ICollection<ItemSpecRelationship> ItemSpecsList { get; set; }
+        public ICollection<Spec> Specs { get; set; }
     }
 }

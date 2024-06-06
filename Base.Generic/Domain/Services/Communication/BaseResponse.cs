@@ -29,5 +29,17 @@ namespace Base.Generic.Domain.Services.Communication
                 Resource = resource;
             }
         }
+
+        public BaseResponse(ICollection<T> resource)
+        {
+            if (resource == null)
+            {
+                Success = false;
+            }
+            else
+            {
+                Success = true;
+            }
+        }
     }
 }

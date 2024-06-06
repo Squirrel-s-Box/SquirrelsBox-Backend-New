@@ -19,4 +19,9 @@ namespace Base.Generic.Domain.Repositories
     {
         Task DeleteCascadeAsync(T model, bool cascade = false);
     }
+
+    public interface IGenericRepositoryWithMassive<T> : IGenericRepository<T>
+    {
+        Task AddMassiveAsync(ICollection<T> modelList);
+    }
 }

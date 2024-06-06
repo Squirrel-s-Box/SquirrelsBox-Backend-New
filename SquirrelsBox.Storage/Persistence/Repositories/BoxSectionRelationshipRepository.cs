@@ -6,7 +6,7 @@ using SquirrelsBox.Storage.Persistence.Context;
 
 namespace SquirrelsBox.Storage.Persistence.Repositories
 {
-    public class BoxSectionRelationshipRepository : BaseRepository<AppDbContext>, IGenericRepository<BoxSectionRelationship>, IGenericReadRepository<BoxSectionRelationship>
+    public class BoxSectionRelationshipRepository : BaseRepository<AppDbContext>, IGenericRepositoryWithCascade<BoxSectionRelationship>, IGenericReadRepository<BoxSectionRelationship>
     {
         public BoxSectionRelationshipRepository(AppDbContext context) : base(context)
         {
@@ -40,9 +40,50 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
 
         public async Task DeleteAsync(BoxSectionRelationship model)
         {
-            _context.BoxesSectionsList.Remove(model);
+            //_context.BoxesSectionsList.Remove(model);
             _context.Sections.Remove(model.Section);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteCascadeAsync(BoxSectionRelationship model, bool cascade)
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                if (cascade)
+                {
+                    var sectionId = model.SectionId;
+
+                    var relatedData = await _context.BoxesSectionsList
+                        .Where(bsr => bsr.SectionId == sectionId)
+                        .SelectMany(bsr => bsr.Section.SectionItemsList.Select(sir => sir.ItemId))
+                        .Distinct()
+                        .ToListAsync();
+
+                    // Extract distinct IDs
+                    var itemIds = relatedData.Distinct().ToList();
+
+                    // Bulk delete using raw SQL for better performance
+                    if (itemIds.Any())
+                    {
+                        var itemIdsParam = itemIds.Any() ? string.Join(",", itemIds) : "NULL";
+
+                        await _context.Database.ExecuteSqlRawAsync($@"
+                            DELETE FROM items WHERE Id IN ({itemIdsParam});
+                        ");
+                    }
+                }
+                await DeleteAsync(model);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public Task<BoxSectionRelationship> FindByCodeAsync(string value)
