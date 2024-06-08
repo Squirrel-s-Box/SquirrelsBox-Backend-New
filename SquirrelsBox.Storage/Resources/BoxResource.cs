@@ -7,6 +7,7 @@ namespace SquirrelsBox.Storage.Resources
     }
     public class ReadBoxResource : DateAuditory
     {
+        public int Id { get; set; }
         public string Name { get; set; }
     }
 
