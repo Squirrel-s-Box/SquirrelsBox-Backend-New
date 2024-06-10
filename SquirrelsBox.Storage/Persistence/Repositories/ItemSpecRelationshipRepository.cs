@@ -11,46 +11,27 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
         public ItemSpecRelationshipRepository(AppDbContext context) : base(context)
         {
         }
-            
-        public async Task AddAsync(Spec model)
-        {
-            var SpecCreated = await _context.PersonalizedSpecs.AddAsync(model);
-            await _context.SaveChangesAsync();
-            //await _context.PersonalizedSpecsItemsList.AddAsync(model);
-        }
 
         public async Task AddMassiveAsync(ICollection<Spec> modelList)
         {
             await _context.PersonalizedSpecs.AddRangeAsync(modelList);
         }
 
-        public async Task DeleteAsync(Spec model)
+        public async Task DeleteteMassiveAsync(ICollection<int> ids)
         {
-            //_context.PersonalizedSpecsItemsList.Remove(model);
-            _context.PersonalizedSpecs.Remove(model);
+            var existingEntities = await _context.PersonalizedSpecs
+                                                        .Where(spec => ids.Contains(spec.Id))
+                                                        .ToListAsync();
+
+            _context.PersonalizedSpecs.RemoveRange(existingEntities);
+
             await _context.SaveChangesAsync();
         }
-
-        public Task<Spec> FindByCodeAsync(string value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<Spec> FindByIdAsync(int id)
-        {
-            // return await _context.PersonalizedSpecsItemsList
-            // .Include(b => b.Spec)
-            //.FirstOrDefaultAsync(x => x.SpecId == id);
-            throw new NotImplementedException();
-        }
-
         public async Task<IEnumerable<Spec>> ListAllByIdAsync(int id)
         {
-            //return await _context.PersonalizedSpecsItemsList
-            //    .Include(b => b.SpecId)
-            //    .Where(b => b.ItemId == id)
-            //    .ToListAsync();
-            throw new NotImplementedException();
+            return await _context.PersonalizedSpecs
+                .Where(b => b.ItemId == id)
+                .ToListAsync();
         }
 
         public Task<IEnumerable<Spec>> ListAllByUserCodeAsync(string userCode)
@@ -58,9 +39,31 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public async void Update(Spec model)
+        public async Task UpdateMassiveAsync(ICollection<Spec> modelList)
         {
-            _context.PersonalizedSpecs.Update(model);
+            var ids = modelList.Select(spec => spec.Id).ToList();
+
+            var existingEntities = await _context.PersonalizedSpecs
+                                                    .Where(spec => ids.Contains(spec.Id))
+                                                    .ToListAsync();
+
+            foreach (var existingEntity in existingEntities)
+            {
+                var matchingModel = modelList.FirstOrDefault(spec => spec.Id == existingEntity.Id);
+                if (matchingModel != null)
+                {
+                    existingEntity.HeaderName = matchingModel.HeaderName;
+                    existingEntity.Value = matchingModel.Value;
+                    existingEntity.ValueType = matchingModel.ValueType;
+                    existingEntity.Active = matchingModel.Active;
+                    existingEntity.LastUpdateDate = DateTime.UtcNow;
+                }
+            }
+
+            _context.PersonalizedSpecs.UpdateRange(existingEntities);
+
+            await _context.SaveChangesAsync();
         }
+
     }
 }

@@ -6,11 +6,6 @@ namespace SquirrelsBox.Storage.Resources
     {
     }
 
-    public class ReadItemSpecRelationshipResource
-    {
-        public ReadSpecResource Item { get; set; }
-    }
-
     public class ReadSpecResource : DateAuditory
     {
         public int Id { get; set; }
@@ -37,16 +32,21 @@ namespace SquirrelsBox.Storage.Resources
         public string ValueType { get; set; }
     }
 
-    //public class UpdateItemSpecListResource
-    //{
-    //    public int? ItemId { get; set; }
-    //    public UpdateSpecResource Spec { get; set; }
-    //}
-
+    public class UpdateSpecMassiveResource
+    {
+        public ICollection<UpdateSpecResource> Specs { get; set; }
+    }
     public class UpdateSpecResource
     {
+        public int Id { get; set; }
         public string HeaderName { get; set; }
         public string Value { get; set; }
         public string ValueType { get; set; }
+        public bool Active { get; set; }
+    }
+
+    public class DeleteSpecMassiveResource
+    {
+        public ICollection<int> Ids { get; set; }
     }
 }

@@ -56,14 +56,9 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
         {
             if (model.SectionId != 0)
             {
-                await _context.UpdateSectionItemRelationship(
-                model.SectionId,
-                    model.ItemId,
-                    // NewValues
-                    model.Item.Id
-                );
+                _context.SectionsItemsList.Update(model);
             }
-            else if (model.SectionId == 0)
+            else if (model.SectionId != 0)
             {
                 _context.Items.Update(model.Item);
             }

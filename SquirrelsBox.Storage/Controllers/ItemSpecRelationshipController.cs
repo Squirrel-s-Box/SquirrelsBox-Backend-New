@@ -25,12 +25,12 @@ namespace SquirrelsBox.Storage.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("sectionlist/{itemId}")]
+        [HttpGet("itemlist/{itemId}")]
         public async Task<IActionResult> GetAllByIdCodeAsync(int itemId)
         {
             var model = await _readService.ListAllByIdCodeAsync(itemId);
-            var list = model.Select(response => _mapper.Map<Spec, ReadItemSpecRelationshipResource>(response.Resource));
-            return Ok(new { SectionList = list });
+            var list = model.Select(response => _mapper.Map<Spec, ReadSpecResource>(response.Resource));
+            return Ok(new { SpecList = list });
         }
 
         [HttpPost("PostMassiveAsync")]
@@ -48,14 +48,14 @@ namespace SquirrelsBox.Storage.Controllers
             return Ok(_mapper.Map<BaseResponse<Spec>, ValidationResource>(result));
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAsync([FromBody] UpdateSpecResource data, int id)
+        [HttpPut]
+        public async Task<IActionResult> PutAsync([FromBody] UpdateSpecMassiveResource data)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
-            var model = _mapper.Map<UpdateSpecResource, Spec>(data);
-            var result = await _service.UpdateAsync(id, model);
+            var model = _mapper.Map<ICollection<UpdateSpecResource>, ICollection<Spec>>(data.Specs);
+            var result = await _service.UpdateMassiveAsync(model);
 
             if (!result.Success)
                 return BadRequest(result.Message);
@@ -64,13 +64,13 @@ namespace SquirrelsBox.Storage.Controllers
             return Ok(itemResource);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteAsync(DeleteSpecMassiveResource data)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
-            var result = await _service.DeleteAsync(id);
+            var result = await _service.DeleteteMassiveAsync(data.Ids);
 
             if (!result.Success)
                 return BadRequest(result.Message);

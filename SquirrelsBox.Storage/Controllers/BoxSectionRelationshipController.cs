@@ -55,7 +55,10 @@ namespace SquirrelsBox.Storage.Controllers
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
             var model = _mapper.Map<UpdateBoxSectionsListResource, BoxSectionRelationship>(data);
-            model.Section.Id = id;
+            if (data.Section != null)
+            {
+                model.Section.Id = id;
+            }
             var result = await _service.UpdateAsync(id, model);
 
             if (!result.Success)

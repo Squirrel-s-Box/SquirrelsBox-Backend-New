@@ -107,7 +107,7 @@ namespace SquirrelsBox.Storage.Persistence.Context
             });
 
             builder.Entity<BoxSectionRelationship>()
-                .HasKey(bsl => new { bsl.BoxId, bsl.SectionId });
+                .HasKey(bsl => new { bsl.Id });
 
             builder.Entity<BoxSectionRelationship>()
                 .HasOne(bsl => bsl.Box)
@@ -122,7 +122,7 @@ namespace SquirrelsBox.Storage.Persistence.Context
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<SectionItemRelationship>()
-                .HasKey(sil => new { sil.SectionId, sil.ItemId });
+                .HasKey(sil => new { sil.Id });
 
             builder.Entity<SectionItemRelationship>()
                 .HasOne(sil => sil.Section)

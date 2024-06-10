@@ -20,8 +20,10 @@ namespace Base.Generic.Domain.Repositories
         Task DeleteCascadeAsync(T model, bool cascade = false);
     }
 
-    public interface IGenericRepositoryWithMassive<T> : IGenericRepository<T>
+    public interface IGenericRepositoryWithMassive<T>
     {
         Task AddMassiveAsync(ICollection<T> modelList);
+        Task UpdateMassiveAsync(ICollection<T> modelList);
+        Task DeleteteMassiveAsync(ICollection<int> ids);
     }
 }

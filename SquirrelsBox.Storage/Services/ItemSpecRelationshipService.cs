@@ -19,42 +19,18 @@ namespace SquirrelsBox.Storage.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ItemSpecRelationshipResponse> DeleteAsync(int id)
+        public async Task<ItemSpecRelationshipResponse> DeleteteMassiveAsync(ICollection<int> ids)
         {
-            var result = await _repository.FindByIdAsync(id);
-            if (result == null)
-                return new ItemSpecRelationshipResponse("Spec not found");
-
             try
             {
-                await _repository.DeleteAsync(result);
+                await _repository.DeleteteMassiveAsync(ids);
                 await _unitOfWork.CompleteAsync();
 
-                return new ItemSpecRelationshipResponse(result);
+                return new ItemSpecRelationshipResponse(ids);
             }
             catch (Exception e)
             {
                 return new ItemSpecRelationshipResponse($"An error occurred while deleting the Spec: {e.Message}");
-            }
-        }
-
-        public Task<ItemSpecRelationshipResponse> FindByCodeAsync(string value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<ItemSpecRelationshipResponse> FindByIdAsync(int id)
-        {
-            try
-            {
-                var result = await _repository.FindByIdAsync(id);
-                await _unitOfWork.CompleteAsync();
-
-                return new ItemSpecRelationshipResponse(result);
-            }
-            catch (Exception e)
-            {
-                return new ItemSpecRelationshipResponse($"Spec not found: {e.Message}");
             }
         }
 
@@ -68,11 +44,6 @@ namespace SquirrelsBox.Storage.Services
         public Task<IEnumerable<ItemSpecRelationshipResponse>> ListAllByUserCodeAsync(string userCode)
         {
             throw new NotImplementedException();
-        }
-
-        public async Task<ItemSpecRelationshipResponse> SaveAsync(Spec model)
-        {
-            throw new NotImplementedException("Use SaveMassiveAsync method instead.");
         }
 
         public async Task<ItemSpecRelationshipResponse> SaveMassiveAsync(ICollection<Spec> modelList)
@@ -95,29 +66,15 @@ namespace SquirrelsBox.Storage.Services
             }
         }
 
-        public async Task<ItemSpecRelationshipResponse> UpdateAsync(int id, Spec model)
+        public async Task<ItemSpecRelationshipResponse> UpdateMassiveAsync(ICollection<Spec> modelList)
         {
-            var result = await _repository.FindByIdAsync(id);
-            if (result == null)
-                return new ItemSpecRelationshipResponse("Spec not found");
-
             try
             {
-                var lastItemId = result.ItemId;
-
-                result.HeaderName = model.HeaderName;
-                result.Value = model.Value;
-                result.ValueType = model.ValueType;
-                result.Active = model.Active;
-                result.LastUpdateDate = DateTime.UtcNow;
-
-                _repository.Update(result);
-
-                result.ItemId = lastItemId;
+                await _repository.UpdateMassiveAsync(modelList);
 
                 await _unitOfWork.CompleteAsync();
 
-                return new ItemSpecRelationshipResponse(result);
+                return new ItemSpecRelationshipResponse(modelList);
             }
             catch (Exception e)
             {

@@ -105,38 +105,30 @@ namespace SquirrelsBox.Storage.Services
             {
                 if (model.BoxId != 0)
                 {
-                    //It works as th enew Box Id
-                    result.Section.Id = model.BoxId;
-                    _repository.Update(result);
-
-                    return new BoxSectionRelationshipResponse(result);
+                    // Update BoxId if provided
+                    result.BoxId = model.BoxId;
                 }
-                else
-                {
-                    var lastBoxId = result.BoxId;
-                    var lastSectionId = result.SectionId;
 
-                    result.BoxId = 0;
-                    result.SectionId = 0;
+                if (model.Section != null)
+                {
+                    // Update Section properties if provided
                     result.Section.Name = model.Section.Name;
                     result.Section.Color = model.Section.Color;
                     result.Section.Active = model.Section.Active;
                     result.Section.LastUpdateDate = DateTime.UtcNow;
-
-                    _repository.Update(result);
-
-                    result.BoxId = lastBoxId;
-                    result.SectionId = lastSectionId;
-
-                    await _unitOfWork.CompleteAsync();
-
-                    return new BoxSectionRelationshipResponse(result);
                 }
+
+                // Update the entity
+                _repository.Update(result);
+                await _unitOfWork.CompleteAsync();
+
+                return new BoxSectionRelationshipResponse(result);
             }
             catch (Exception e)
             {
                 return new BoxSectionRelationshipResponse($"An error occurred while updating the Section: {e.Message}");
             }
         }
+
     }
 }

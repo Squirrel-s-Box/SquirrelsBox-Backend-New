@@ -41,5 +41,17 @@ namespace Base.Generic.Domain.Services.Communication
                 Success = true;
             }
         }
+
+        public BaseResponse(ICollection<int> resource)
+        {
+            if (resource == null)
+            {
+                Success = false;
+            }
+            else
+            {
+                Success = true;
+            }
+        }
     }
 }

@@ -33,9 +33,10 @@ CREATE TABLE [dbo].[boxes] (
 );
 
 CREATE TABLE [dbo].[boxes_sections_list] (
+    [id]     INT IDENTITY (1, 1) NOT NULL,
     [box_id]     INT NOT NULL,
     [section_id] INT NOT NULL,
-    PRIMARY KEY CLUSTERED ([box_id] ASC, [section_id] ASC),
+    PRIMARY KEY CLUSTERED (id ASC),
     FOREIGN KEY ([box_id]) REFERENCES [dbo].[boxes] ([id]),
     FOREIGN KEY ([section_id]) REFERENCES [dbo].[sections] ([id])
 );
@@ -69,9 +70,10 @@ CREATE TABLE [dbo].[sections] (
 );
 
 CREATE TABLE [dbo].[sections_items_list] (
+    [id]               INT            IDENTITY (1, 1) NOT NULL,
     [section_id] INT NOT NULL,
     [item_id]    INT NOT NULL,
-    PRIMARY KEY CLUSTERED ([section_id] ASC, [item_id] ASC),
+    PRIMARY KEY CLUSTERED ([id] ASC),
     FOREIGN KEY ([item_id]) REFERENCES [dbo].[items] ([id]),
     FOREIGN KEY ([section_id]) REFERENCES [dbo].[sections] ([id])
 );

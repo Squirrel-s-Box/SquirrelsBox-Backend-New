@@ -15,5 +15,8 @@ namespace SquirrelsBox.Storage.Domain.Communication
         public ItemSpecRelationshipResponse(ICollection<Spec> resource) : base(resource)
         {
         }
+        public ItemSpecRelationshipResponse(ICollection<int> resource) : base(resource)
+        {
+        }
     }
 }

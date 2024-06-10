@@ -101,34 +101,22 @@ namespace SquirrelsBox.Storage.Services
                 if (model.SectionId != 0)
                 {
                     //It works as th enew Box Id
-                    result.Item.Id = model.SectionId;
-                    _repository.Update(result);
-
-                    return new SectionItemRelationshipResponse(result);
+                    result.SectionId = model.SectionId;
                 }
-                else
+                if (model.Item != null)
                 {
-                    var lastSectionId = result.SectionId;
-                    var lastItemId = result.ItemId;
-
-                    result.SectionId = 0;
-                    result.ItemId = 0;
                     result.Item.Name = model.Item.Name;
                     result.Item.Description = model.Item.Description;
                     result.Item.Amount = model.Item.Amount;
                     result.Item.ItemPhoto = model.Item.ItemPhoto;
                     result.Item.Active = model.Item.Active;
                     result.Item.LastUpdateDate = DateTime.UtcNow;
-
-                    _repository.Update(result);
-
-                    result.SectionId = lastSectionId;
-                    result.ItemId = lastItemId;
-
-                    await _unitOfWork.CompleteAsync();
-
-                    return new SectionItemRelationshipResponse(result);
                 }
+
+                _repository.Update(result);
+                await _unitOfWork.CompleteAsync();
+
+                return new SectionItemRelationshipResponse(result);
             }
             catch (Exception e)
             {
