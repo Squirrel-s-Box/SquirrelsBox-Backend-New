@@ -11,4 +11,8 @@ namespace Base.Generic.Domain.Services
         Task<IEnumerable<R>> ListAllByUserCodeAsync(string userCode);
         Task<IEnumerable<R>> ListAllByIdCodeAsync(int id);
     }
+    public interface IGenericSearchService
+    {
+        Task<object> ListFinderAsync(string text, int type);
+    }
 }

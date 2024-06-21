@@ -10,6 +10,8 @@ namespace SquirrelsBox.Storage.Mapping
     {
         public ModelToResourceProfile()
         {
+            CreateMap<SharedBox, ReadSharedBoxResource>();
+
             CreateMap<Box, ReadBoxResource>();
 
             CreateMap<BoxSectionRelationship, ReadBoxSectionRelationshipResource>();

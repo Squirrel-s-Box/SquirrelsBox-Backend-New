@@ -12,13 +12,13 @@ namespace SquirrelsBox.Storage.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BoxSectionRelationshipController : ControllerBase
+    public class SectionController : ControllerBase
     {
         private readonly IGenericServiceWithCascade<BoxSectionRelationship, BoxSectionRelationshipResponse> _service;
         private readonly IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse> _readService;
         private readonly IMapper _mapper;
 
-        public BoxSectionRelationshipController(IGenericServiceWithCascade<BoxSectionRelationship, BoxSectionRelationshipResponse> service, IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse> readService, IMapper mapper)
+        public SectionController(IGenericServiceWithCascade<BoxSectionRelationship, BoxSectionRelationshipResponse> service, IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse> readService, IMapper mapper)
         {
             _service = service;
             _readService = readService;

@@ -29,10 +29,9 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
 
             try
             {
+                var boxId = model.Id;
                 if (cascade)
                 {
-                    var boxId = model.Id;
-
                     var relatedData = await _context.BoxesSectionsList
                         .Where(bsr => bsr.BoxId == boxId)
                         .Select(bsr => new
@@ -59,15 +58,18 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
                             DELETE FROM items WHERE Id IN ({itemIdsParam});
                         ");
                     }
-
-
-                    // Optionally, remove shared boxes if needed
-                    //var sharedBoxes = await _context.SharedBox.Where(sb => sb.BoxId == boxId).ToListAsync();
-                    //if (sharedBoxes.Any())
-                    //{
-                    //    _context.SharedBox.RemoveRange(sharedBoxes);
-                    //}
                 }
+                //Delete shared boxes bonds and permissions
+                var sharedBoxes = await _context.SharedBoxes
+                    .Where(sb => sb.BoxId == boxId)
+                    .ToListAsync();
+
+                if (sharedBoxes.Any())
+                {
+                    _context.SharedBoxes.RemoveRange(sharedBoxes);
+                    await _context.SaveChangesAsync();
+                }
+
                 await DeleteAsync(model);
 
                 await _context.SaveChangesAsync();

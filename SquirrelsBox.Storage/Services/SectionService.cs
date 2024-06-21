@@ -6,13 +6,13 @@ using SquirrelsBox.Storage.Persistence.Context;
 
 namespace SquirrelsBox.Storage.Services
 {
-    public class BoxSectionRelationshipService : IGenericServiceWithCascade<BoxSectionRelationship, BoxSectionRelationshipResponse>, IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse>
+    public class SectionService : IGenericServiceWithCascade<BoxSectionRelationship, BoxSectionRelationshipResponse>, IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse>
     {
         private readonly IGenericRepositoryWithCascade<BoxSectionRelationship> _repository;
         private readonly IGenericReadRepository<BoxSectionRelationship> _readRepository;
         private readonly IUnitOfWork<AppDbContext> _unitOfWork;
 
-        public BoxSectionRelationshipService(IGenericRepositoryWithCascade<BoxSectionRelationship> repository, IGenericReadRepository<BoxSectionRelationship> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
+        public SectionService(IGenericRepositoryWithCascade<BoxSectionRelationship> repository, IGenericReadRepository<BoxSectionRelationship> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
         {
             _repository = repository;
             _readRepository = readRepository;

@@ -2,7 +2,7 @@
 
 namespace SquirrelsBox.Storage.Resources
 {
-    public class SectionItemResource
+    public class ItemResource
     {
     }
 

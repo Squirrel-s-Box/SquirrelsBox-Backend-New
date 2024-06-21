@@ -15,30 +15,40 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Repositories init
+builder.Services.AddScoped<IGenericSearchRepository, ASearchRepository>();
+
+builder.Services.AddScoped<IGenericRepository<SharedBox>, SharedBoxRepository>();
+builder.Services.AddScoped<IGenericReadRepository<SharedBox>, SharedBoxRepository>();
+
 builder.Services.AddScoped<IGenericRepositoryWithCascade<Box>, BoxRepository>();
 builder.Services.AddScoped<IGenericReadRepository<Box>, BoxRepository>();
 
-builder.Services.AddScoped<IGenericRepositoryWithCascade<BoxSectionRelationship>, BoxSectionRelationshipRepository>();
-builder.Services.AddScoped<IGenericReadRepository<BoxSectionRelationship>, BoxSectionRelationshipRepository>();
+builder.Services.AddScoped<IGenericRepositoryWithCascade<BoxSectionRelationship>, SectionRepository>();
+builder.Services.AddScoped<IGenericReadRepository<BoxSectionRelationship>, SectionRepository>();
 
-builder.Services.AddScoped<IGenericRepository<SectionItemRelationship>, SectionItemRelationshipRepository>();
-builder.Services.AddScoped<IGenericReadRepository<SectionItemRelationship>, SectionItemRelationshipRepository>();
+builder.Services.AddScoped<IGenericRepository<SectionItemRelationship>, ItemRepository>();
+builder.Services.AddScoped<IGenericReadRepository<SectionItemRelationship>, ItemRepository>();
 
-builder.Services.AddScoped<IGenericRepositoryWithMassive<Spec>, ItemSpecRelationshipRepository>();
-builder.Services.AddScoped<IGenericReadRepository<Spec>, ItemSpecRelationshipRepository>();
+builder.Services.AddScoped<IGenericRepositoryWithMassive<Spec>, SpecRepository>();
+builder.Services.AddScoped<IGenericReadRepository<Spec>, SpecRepository>();
 
 // Services init
+builder.Services.AddScoped<IGenericSearchService, ASearchService>();
+
+builder.Services.AddScoped<IGenericService<SharedBox, SharedBoxResponse>, SharedBoxService>();
+builder.Services.AddScoped<IGenericReadService<SharedBox, SharedBoxResponse>, SharedBoxService>();
+
 builder.Services.AddScoped<IGenericServiceWithCascade<Box, BoxResponse>, BoxService>();
 builder.Services.AddScoped<IGenericReadService<Box, BoxResponse>, BoxService>();
 
-builder.Services.AddScoped<IGenericServiceWithCascade<BoxSectionRelationship, BoxSectionRelationshipResponse>, BoxSectionRelationshipService>();
-builder.Services.AddScoped<IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse>, BoxSectionRelationshipService>();
+builder.Services.AddScoped<IGenericServiceWithCascade<BoxSectionRelationship, BoxSectionRelationshipResponse>, SectionService>();
+builder.Services.AddScoped<IGenericReadService<BoxSectionRelationship, BoxSectionRelationshipResponse>, SectionService>();
 
-builder.Services.AddScoped<IGenericService<SectionItemRelationship, SectionItemRelationshipResponse>, SectionItemRelationshipService>();
-builder.Services.AddScoped<IGenericReadService<SectionItemRelationship, SectionItemRelationshipResponse>, SectionItemRelationshipService>();
+builder.Services.AddScoped<IGenericService<SectionItemRelationship, SectionItemRelationshipResponse>, ItemService>();
+builder.Services.AddScoped<IGenericReadService<SectionItemRelationship, SectionItemRelationshipResponse>, ItemService>();
 
-builder.Services.AddScoped<IGenericServiceWithMassive<Spec, ItemSpecRelationshipResponse>, ItemSpecRelationshipService>();
-builder.Services.AddScoped<IGenericReadService<Spec, ItemSpecRelationshipResponse>, ItemSpecRelationshipService>();
+builder.Services.AddScoped<IGenericServiceWithMassive<Spec, ItemSpecRelationshipResponse>, SpecService>();
+builder.Services.AddScoped<IGenericReadService<Spec, ItemSpecRelationshipResponse>, SpecService>();
 
 builder.Services.AddScoped<IUnitOfWork<AppDbContext>, UnitOfWork<AppDbContext>>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);

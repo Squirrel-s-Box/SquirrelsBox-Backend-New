@@ -11,4 +11,9 @@ namespace Base.Generic.Domain.Repositories
         Task<IEnumerable<T>> ListAllByUserCodeAsync(string userCode);
         Task<IEnumerable<T>> ListAllByIdAsync(int id);
     }
+
+    public interface IGenericSearchRepository
+    {
+        Task<object> ListFinderAsync(string text, int type);
+    }
 }

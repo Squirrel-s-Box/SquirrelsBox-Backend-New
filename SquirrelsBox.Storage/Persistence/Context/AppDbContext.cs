@@ -6,15 +6,15 @@ namespace SquirrelsBox.Storage.Persistence.Context
 {
     public partial class AppDbContext : DbContext
     {
-        public DbSet<SharedBox> SharedBox { get; set; }
-
         public DbSet<Box> Boxes { get; set; }
         public DbSet<Section> Sections { get; set; }
         public DbSet<Item> Items { get; set; }
         public DbSet<Spec> PersonalizedSpecs { get; set; }
-
         public DbSet<BoxSectionRelationship> BoxesSectionsList { get; set; }
         public DbSet<SectionItemRelationship> SectionsItemsList { get; set; }
+
+        public DbSet<SharedBox> SharedBoxes { get; set; }
+        public DbSet<SharedBoxPermission> SharedBoxPermissions { get; set; }
 
         public AppDbContext(DbContextOptions options) : base(options)
         {
@@ -23,6 +23,43 @@ namespace SquirrelsBox.Storage.Persistence.Context
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            builder.Entity<SharedBox>(entity =>
+            {
+                entity.ToTable("shared_boxes");
+                entity.HasKey(sb => sb.Id);
+                entity.Property(sb => sb.Id).IsRequired().ValueGeneratedOnAdd();
+                entity.Property(sb => sb.BoxId).IsRequired();
+                entity.Property(sb => sb.UserCodeGuest).IsRequired().HasMaxLength(40);
+                entity.Property(sb => sb.CreationDate).HasDefaultValueSql("GETDATE()");
+                entity.Property(sb => sb.LastUpdateDate);
+                entity.Property(sb => sb.State).IsRequired();
+
+                entity.HasOne(sb => sb.Box)
+                    .WithMany()
+                    .HasForeignKey(sb => sb.BoxId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(sb => sb.SharedBoxPermissions)
+                    .WithOne(sbp => sbp.SharedBox)
+                    .HasForeignKey(sbp => sbp.SharedBoxId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<SharedBoxPermission>(entity =>
+            {
+                entity.ToTable("shared_box_permissions");
+                entity.HasKey(sbp => sbp.Id);
+                entity.Property(sbp => sbp.Id).IsRequired().ValueGeneratedOnAdd();
+                entity.Property(sbp => sbp.SharedBoxId).IsRequired();
+                entity.Property(sbp => sbp.PermissionId).IsRequired().HasMaxLength(60);
+                entity.Property(sbp => sbp.IsAllowed).IsRequired();
+
+                entity.HasOne(sbp => sbp.SharedBox)
+                    .WithMany(sb => sb.SharedBoxPermissions)
+                    .HasForeignKey(sbp => sbp.SharedBoxId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
 
             builder.Entity<Box>(entity =>
             {
@@ -137,31 +174,6 @@ namespace SquirrelsBox.Storage.Persistence.Context
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.UseSnakeCaseNamingConvention();
-        }
-
-
-        public async Task UpdateBoxSectionRelationship(int boxId, int sectionId, int newBoxId)
-        {
-            await Database.ExecuteSqlRawAsync(
-                "EXEC UpdateBoxSectionRelationship @p0, @p1, @p2",
-                parameters: new object[] { boxId, sectionId, newBoxId }
-            );
-        }
-
-        public async Task UpdateSectionItemRelationship(int sectionId, int itemId, int newSectionId)
-        {
-            await Database.ExecuteSqlRawAsync(
-                "EXEC UpdateSectionItemRelationship @p0, @p1, @p2",
-                parameters: new object[] { sectionId, itemId, newSectionId }
-            );
-        }
-
-        public async Task UpdateItemSpecRelationship(int itemId, int specId, int newItemId)
-        {
-            await Database.ExecuteSqlRawAsync(
-                "EXEC UpdateItemSpecRelationship @p0, @p1, @p2",
-                parameters: new object[] { itemId, specId, newItemId }
-            );
         }
     }
 }

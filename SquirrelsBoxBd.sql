@@ -103,15 +103,41 @@ CREATE TABLE [dbo].[personalized_specs] (
     FOREIGN KEY ([item_id]) REFERENCES [dbo].[items] ([id]) ON DELETE CASCADE
 );
 
--- CREATE TABLE [dbo].[shared_boxes] (
---     [id]               INT          IDENTITY (1, 1) NOT NULL,
---     [box_id]           INT          NOT NULL,
---     [user_code_guest]  VARCHAR (40) NOT NULL,
---     [creation_date]    DATETIME     DEFAULT (getdate()) NULL,
---     [last_update_date] DATETIME     NULL,
---     [state]            BIT          NOT NULL,
---     PRIMARY KEY CLUSTERED ([id] ASC),
---     FOREIGN KEY ([box_id]) REFERENCES [dbo].[boxes] ([id])
+
+   CREATE TABLE [dbo].[shared_boxes] (
+    [id]               INT          IDENTITY (1, 1) NOT NULL,
+    [box_id]           INT          NOT NULL,
+    [user_code_guest]  VARCHAR (40) NOT NULL,
+    [creation_date]    DATETIME     DEFAULT (getdate()) NULL,
+    [last_update_date] DATETIME     NULL,
+    [state]            BIT          NOT NULL,
+    PRIMARY KEY CLUSTERED ([id] ASC),
+    FOREIGN KEY ([box_id]) REFERENCES [dbo].[boxes] ([id])
+);
+
+CREATE TABLE [dbo].[shared_box_permissions] (
+    [id]                 INT          IDENTITY (1, 1) NOT NULL,
+    [shared_box_id]      INT          NOT NULL,
+    [permission_id]      INT          NOT NULL,
+    [is_allowed]         BIT          NOT NULL,
+    PRIMARY KEY CLUSTERED ([id] ASC),
+    FOREIGN KEY ([shared_box_id]) REFERENCES [dbo].[shared_boxes] ([id])
+);
+
+-- CREATE TABLE UserPermissions (
+--     UserId INT PRIMARY KEY,
+--     CanAddBox BIT DEFAULT 0,
+--     CanUpdateBox BIT DEFAULT 0,
+--     CanDeleteBox BIT DEFAULT 0,
+--     CanAddSection BIT DEFAULT 0,
+--     CanUpdateSection BIT DEFAULT 0,
+--     CanDeleteSection BIT DEFAULT 0,
+--     CanAddItem BIT DEFAULT 0,
+--     CanUpdateItem BIT DEFAULT 0,
+--     CanDeleteItem BIT DEFAULT 0,
+--     CanAddSpec BIT DEFAULT 0,
+--     CanUpdateSpec BIT DEFAULT 0,
+--     CanDeleteSpec BIT DEFAULT 0
 -- );
 
 -- CREATE TABLE [dbo].[users_data] (

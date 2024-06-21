@@ -6,9 +6,9 @@ using SquirrelsBox.Storage.Persistence.Context;
 
 namespace SquirrelsBox.Storage.Persistence.Repositories
 {
-    public class BoxSectionRelationshipRepository : BaseRepository<AppDbContext>, IGenericRepositoryWithCascade<BoxSectionRelationship>, IGenericReadRepository<BoxSectionRelationship>
+    public class SectionRepository : BaseRepository<AppDbContext>, IGenericRepositoryWithCascade<BoxSectionRelationship>, IGenericReadRepository<BoxSectionRelationship>
     {
-        public BoxSectionRelationshipRepository(AppDbContext context) : base(context)
+        public SectionRepository(AppDbContext context) : base(context)
         {
         }
 

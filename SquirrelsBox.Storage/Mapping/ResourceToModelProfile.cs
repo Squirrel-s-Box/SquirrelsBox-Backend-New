@@ -8,6 +8,8 @@ namespace SquirrelsBox.Storage.Mapping
     {
         public ResourceToModelProfile()
         {
+            CreateMap<SaveSharedBoxResource, SharedBox>();
+
             CreateMap<ReadBoxResource, Box>();
             CreateMap<SaveBoxResource, Box>();
             CreateMap<UpdateBoxResource, Box>();
