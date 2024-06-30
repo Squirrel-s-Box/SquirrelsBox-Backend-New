@@ -16,6 +16,8 @@ namespace SquirrelsBox.Storage.Persistence.Context
         public DbSet<SharedBox> SharedBoxes { get; set; }
         public DbSet<SharedBoxPermission> SharedBoxPermissions { get; set; }
 
+        public DbSet<Counter> Counter { get; set; }
+
         public AppDbContext(DbContextOptions options) : base(options)
         {
         }

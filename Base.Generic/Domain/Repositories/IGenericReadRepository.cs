@@ -15,5 +15,6 @@ namespace Base.Generic.Domain.Repositories
     public interface IGenericSearchRepository
     {
         Task<object> ListFinderAsync(string text, int type);
+        Task<object> CounterByUserCodeAsync(string userCode);
     }
 }

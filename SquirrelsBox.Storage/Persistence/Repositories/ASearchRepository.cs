@@ -1,6 +1,7 @@
 ﻿using Base.Generic.Domain.Repositories;
 using Base.Generic.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
+using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Persistence.Context;
 
 namespace SquirrelsBox.Storage.Persistence.Repositories
@@ -9,6 +10,24 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
     {
         public ASearchRepository(AppDbContext context) : base(context)
         {
+        }
+
+        public async Task<object> CounterByUserCodeAsync(string userCode)
+        {
+            var result = await (from b in _context.Boxes
+                                where b.UserCodeOwner == userCode
+                                join bs in _context.BoxesSectionsList on b.Id equals bs.BoxId
+                                join si in _context.SectionsItemsList on bs.SectionId equals si.SectionId
+                                group new { b, bs, si } by new { b.Id, b.UserCodeOwner } into g
+                                select new
+                                {
+                                    NumberOfBoxes = g.Select(x => x.b).Distinct().Count(),
+                                    NumberOfSections = g.Select(x => x.bs.SectionId).Distinct().Count(),
+                                    NumberOfItems = g.Select(x => x.si.ItemId).Distinct().Count()
+                                })
+                                .FirstOrDefaultAsync();
+
+            return result ?? new { NumberOfBoxes = 0, NumberOfSections = 0, NumberOfItems = 0 };
         }
 
         public async Task<object> ListFinderAsync(string text, int type)
