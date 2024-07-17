@@ -24,6 +24,12 @@ namespace SquirrelsBox.Authentication.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> FindByEmail(string email)
+        {
+            var user = await _context.UsersData.FirstOrDefaultAsync(i => i.Email == email);
+            return user != null;
+        }
+
         public async Task<AccessSession> FindByCodeAsync(string value)
         {
             return await _context.AccessSessions.FirstOrDefaultAsync(i => i.Code == value);
@@ -83,5 +89,18 @@ namespace SquirrelsBox.Authentication.Persistence.Repositories
             }
         }
 
+        public async Task<AccessSession> LogIn(AccessSession model)
+        {
+            var user = await _context.AccessSessions.FirstOrDefaultAsync(u => u.Username == model.Username);
+            if (user != null)
+            {
+
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Invalid username or password.");
+            }
+            return user;
+        }
     }
 }

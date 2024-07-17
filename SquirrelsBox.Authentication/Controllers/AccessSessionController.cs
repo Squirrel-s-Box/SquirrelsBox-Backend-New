@@ -40,7 +40,7 @@ namespace SquirrelsBox.Authentication.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("Register")]
         public async Task<IActionResult> PostAsync([FromBody] Login request)
         {
             if (!ModelState.IsValid)
@@ -71,6 +71,42 @@ namespace SquirrelsBox.Authentication.Controllers
                 code = model.Code,
                 RefreshToken = model.RefreshToken,
                 token = result.Token};
+            return Ok(res);
+        }
+
+        [HttpPost("LogIn")]
+        public async Task<IActionResult> LogIn([FromBody] Login request)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errorState = ModelState.ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                );
+
+                var errorMessages = ErrorMessagesExtensions.GetErrorMessages(errorState);
+
+                return BadRequest(errorMessages);
+            }
+
+            Domain.Models.AccessSession model = new Domain.Models.AccessSession();
+            model.Username = request.Username;
+            byte[] hashedPassword = Sha256Enc.HashPassword(request.Password);
+            model.Password = hashedPassword;
+            var result = await _accessSessionService.LogIn(model);
+
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            var itemResource = _mapper.Map<BaseResponse<AccessSession>, ValidationResource>(result);
+
+            var res = new
+            {
+                itemResource,
+                code = result.Resource.Code,
+                RefreshToken = result.Resource.RefreshToken,
+                token = result.Token
+            };
             return Ok(res);
         }
 

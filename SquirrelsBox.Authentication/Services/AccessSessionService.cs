@@ -86,6 +86,36 @@ namespace SquirrelsBox.Authentication.Services
             }
         }
 
+        public async Task<AccessSessionResponse> LogIn(AccessSession model)
+        {
+            try
+            {
+                var result = await _accessSesionRepository.LogIn(model);
+                var newRefreshToken = JwtTokenGenerator.CreateRefreshToken();
+                var refreshTokenVerificationResult = await _accessSesionRepository.VerifyAndReplaceRefreshTokenAsync(result.RefreshToken, newRefreshToken);
+
+                if (!refreshTokenVerificationResult)
+                {
+                    throw new InvalidOperationException("Invalid refresh token.");
+                }
+
+                JwtAccess jwtAccess = new JwtAccess
+                {
+                    UserCode = result.Code,
+                    Role = UserRole.User
+                };
+
+                var newToken = JwtTokenGenerator.CreateToken(jwtAccess, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+                await _unitOfWork.CompleteAsync();
+
+                return new AccessSessionResponse(result, newToken);
+            }
+            catch (Exception e)
+            {
+                return new AccessSessionResponse($"Session not found: {e.Message}");
+            }
+        }
+
         public async Task<AccessSessionResponse> SaveAsync(AccessSession model)
         {
             try
