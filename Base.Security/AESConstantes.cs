@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Base.Security
 {
-    public class Sha256Constantes
+    public class AESConstantes
     {
         public string Key { get; set; }
         public string IV { get; set; }

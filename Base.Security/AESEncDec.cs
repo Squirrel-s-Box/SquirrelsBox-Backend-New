@@ -12,9 +12,9 @@ namespace Base.Security
         public static string AESEncryption(string input, string key, string AES_IV)
         {
             byte[] keyBytes = Encoding.UTF8.GetBytes(key[..32]);
-#pragma warning disable SYSLIB0021 // Type or member is obsolete
+            #pragma warning disable SYSLIB0021 // Type or member is obsolete
             using var aesAlg = new AesCryptoServiceProvider();
-#pragma warning restore SYSLIB0021 // Type or member is obsolete
+            #pragma warning restore SYSLIB0021 // Type or member is obsolete
             aesAlg.Key = keyBytes;
             aesAlg.IV = Encoding.UTF8.GetBytes(AES_IV[..16]);
 

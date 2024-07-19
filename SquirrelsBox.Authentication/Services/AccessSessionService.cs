@@ -21,10 +21,10 @@ namespace SquirrelsBox.Authentication.Services
         private readonly IGenericRepository<AccessSession> _repository;
         private readonly IAccessSessionRepository _accessSesionRepository;
         private readonly IUnitOfWork<AppDbContext> _unitOfWork;
-        private readonly IOptions<Sha256Constantes> _encryptionSettings;
+        private readonly IOptions<AESConstantes> _encryptionSettings;
         private readonly IOptions<JwtKeys> _jwtAccess;
 
-        public AccessSessionService(IGenericRepository<AccessSession> repository, IAccessSessionRepository accessSesionRepository, IUnitOfWork<AppDbContext> unitOfWork, IOptions<Sha256Constantes> encryptionSettings, IOptions<JwtKeys> jwtAccess)
+        public AccessSessionService(IGenericRepository<AccessSession> repository, IAccessSessionRepository accessSesionRepository, IUnitOfWork<AppDbContext> unitOfWork, IOptions<AESConstantes> encryptionSettings, IOptions<JwtKeys> jwtAccess)
         {
             _repository = repository;
             _accessSesionRepository = accessSesionRepository;
@@ -125,7 +125,7 @@ namespace SquirrelsBox.Authentication.Services
                 model.CreationDate = DateTime.UtcNow;
                 model.LastUpdateDate = null;
                 model.Code = Guid.NewGuid().ToString();
-                model.Code = AESEncDec.AESEncryption(model.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
+
                 //do
                 //{
                 //    model.Code = Guid.NewGuid().ToString();
@@ -144,7 +144,7 @@ namespace SquirrelsBox.Authentication.Services
                     Role = UserRole.User
                 };
 
-                model.Code = AESEncDec.AESDecryption(model.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
+                model.Code = AESEncDec.AESEncryption(model.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
                 var token = JwtTokenGenerator.CreateToken(jwtAccess, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
 
                 return new AccessSessionResponse(model, token);

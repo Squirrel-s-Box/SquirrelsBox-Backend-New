@@ -50,7 +50,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.Configure<JwtKeys>(builder.Configuration.GetSection("Jwt"));
-builder.Services.Configure<Sha256Constantes>(builder.Configuration.GetSection("EncryptionSettings"));
+builder.Services.Configure<AESConstantes>(builder.Configuration.GetSection("EncryptionSettings"));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
