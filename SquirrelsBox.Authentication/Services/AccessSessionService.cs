@@ -90,6 +90,7 @@ namespace SquirrelsBox.Authentication.Services
         {
             try
             {
+                model.Code = AESEncDec.AESDecryption(model.Code, _encryptionSettings.Value.Key2, _encryptionSettings.Value.IV2);
                 var result = await _accessSesionRepository.LogIn(model);
                 var newRefreshToken = JwtTokenGenerator.CreateRefreshToken();
                 var refreshTokenVerificationResult = await _accessSesionRepository.VerifyAndReplaceRefreshTokenAsync(result.RefreshToken, newRefreshToken);
