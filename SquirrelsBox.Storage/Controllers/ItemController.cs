@@ -35,15 +35,15 @@ namespace SquirrelsBox.Storage.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] SaveSectionItemResource data, IFormFile? image)
+        public async Task<IActionResult> PostAsync([FromForm] SaveSectionItemResource data)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
             string? blobUrl = string.Empty;
-            if (image != null && image.Length > 0)
+            if (data.Image != null && data.Image.Length > 0)
             {
-                blobUrl = await ContainerService.UploadImageToBlobStorageAsync(image);
+                blobUrl = await ContainerService.UploadImageToBlobStorageAsync(data.Image);
             }
 
             data.Item.ItemPhoto = blobUrl;

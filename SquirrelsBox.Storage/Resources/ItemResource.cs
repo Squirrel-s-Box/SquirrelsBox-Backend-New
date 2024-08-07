@@ -23,6 +23,7 @@ namespace SquirrelsBox.Storage.Resources
     {
         public int SectionId { get; set; }
         public SaveItemResource Item { get; set; }
+        public IFormFile? Image { get; set; }
     }
     public class SaveItemResource
     {
