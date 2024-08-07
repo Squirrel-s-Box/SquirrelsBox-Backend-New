@@ -14,9 +14,11 @@ using SquirrelsBox.Authentication.Domain.Models;
 using SquirrelsBox.Authentication.Persistence.Context;
 using SquirrelsBox.Authentication.Persistence.Repositories;
 using SquirrelsBox.Authentication.Services;
+using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+var environment = builder.Environment;
 
 // Add services to the container.
 
@@ -47,10 +49,54 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    string connectionString;
+    if (environment.IsDevelopment())
+    {
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    }
+    else
+    {
+        connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
+    }
+
+    options.UseSqlServer(connectionString);
 });
-builder.Services.Configure<JwtKeys>(builder.Configuration.GetSection("Jwt"));
-builder.Services.Configure<AESConstantes>(builder.Configuration.GetSection("EncryptionSettings"));
+
+//builder.Services.Configure<JwtKeys>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<JwtKeys>(options =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        // Read from appsettings.json in development
+        options.Key = builder.Configuration["Jwt:Key"];
+        options.Issuer = builder.Configuration["Jwt:Issuer"];
+        options.Audience = builder.Configuration["Jwt:Audience"];
+    }
+    else
+    {
+        // Read from environment variables in production
+        options.Key = Environment.GetEnvironmentVariable("Jwt__Key");
+        options.Issuer = Environment.GetEnvironmentVariable("Jwt__Issuer");
+        options.Audience = Environment.GetEnvironmentVariable("Jwt__Audience");
+    }
+});
+
+//builder.Services.Configure<AESConstantes>(builder.Configuration.GetSection("EncryptionSettings"));
+builder.Services.Configure<AESConstantes>(options =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        // Read from appsettings.json in development
+        options.Key = builder.Configuration["EncryptionSettings:Key"];
+        options.IV = builder.Configuration["EncryptionSettings:IV"];
+    }
+    else
+    {
+        // Read from environment variables in production
+        options.Key = Environment.GetEnvironmentVariable("EncryptionSettings__Key");
+        options.IV = Environment.GetEnvironmentVariable("EncryptionSettings__IV");
+    }
+});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

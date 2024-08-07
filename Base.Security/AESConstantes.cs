@@ -10,7 +10,7 @@ namespace Base.Security
     {
         public string Key { get; set; }
         public string IV { get; set; }
-        public string Key2 { get; set; }
-        public string IV2 { get; set; }
+        //public string Key2 { get; set; }
+        //public string IV2 { get; set; }
     }
 }

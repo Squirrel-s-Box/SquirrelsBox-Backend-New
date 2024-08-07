@@ -1,5 +1,8 @@
-﻿using Base.Generic.Domain.Services;
+﻿using Azure.Storage.Blobs;
+using Base.AzureServices.BlobStorage;
+using Base.Generic.Domain.Services;
 using Base.Generic.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SquirrelsBox.Storage.Domain.Communication;
 using SquirrelsBox.Storage.Domain.Models;
@@ -37,6 +40,21 @@ namespace SquirrelsBox.Storage.Controllers
             var result = await _service.ListFinderAsync(text, type);
 
             return Ok(result);
+        }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadImage(IFormFile image)
+        {
+            if (image == null || image.Length == 0)
+            {
+                return BadRequest("Invalid image file.");
+            }
+
+            // Upload to Blob Storage
+            var blobUrl = await ContainerService.UploadImageToBlobStorageAsync(image);
+
+            // Return the URL to the frontend
+            return Ok(new { url = blobUrl });
         }
     }
 }

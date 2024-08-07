@@ -7,8 +7,10 @@ using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Persistence.Context;
 using SquirrelsBox.Storage.Persistence.Repositories;
 using SquirrelsBox.Storage.Services;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
+var environment = builder.Environment;
 
 // Add services to the container.
 
@@ -56,8 +58,33 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    string connectionString;
+    if (environment.IsDevelopment())
+    {
+        connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    }
+    else
+    {
+        connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
+    }
+
+    options.UseSqlServer(connectionString);
 });
+
+//builder.Services.AddTransient<IImageUploadService>(provider =>
+//{
+//    string blobStorageConnectionString;
+//    if (builder.Environment.IsDevelopment())
+//    {
+//        blobStorageConnectionString = builder.Configuration.GetConnectionString("BlobStorageConnectionString");
+//    }
+//    else
+//    {
+//        blobStorageConnectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
+//    }
+//    string containerName = builder.Configuration["ContainerName"];
+//    return new ImageUploadService(blobStorageConnectionString, containerName);
+//});
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -73,6 +100,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
 
 app.UseAuthorization();
 

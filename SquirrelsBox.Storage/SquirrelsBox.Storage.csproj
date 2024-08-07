@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Base.AzureServices\Base.AzureServices.csproj" />
     <ProjectReference Include="..\Base.Generic\Base.Generic.csproj" />
   </ItemGroup>
 
