@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SquirrelsBox.Storage.Domain.Communication;
 using SquirrelsBox.Storage.Domain.Models;
+using SquirrelsBox.Storage.Resources;
 
 namespace SquirrelsBox.Storage.Controllers
 {
@@ -14,10 +15,12 @@ namespace SquirrelsBox.Storage.Controllers
     public class ASearchController : ControllerBase
     {
         private readonly IGenericSearchService _service;
+        private readonly IContainerService _imageUploadService;
 
-        public ASearchController(IGenericSearchService service)
+        public ASearchController(IGenericSearchService service, IContainerService imageUploadService)
         {
             _service = service;
+            _imageUploadService = imageUploadService;
         }
 
         [HttpGet("GetCounterAsync")]
@@ -43,15 +46,13 @@ namespace SquirrelsBox.Storage.Controllers
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadImage(IFormFile image)
+        public async Task<IActionResult> UploadImage([FromForm] SaveSectionItemResource data)
         {
-            if (image == null || image.Length == 0)
+            string? blobUrl = string.Empty;
+            if (data.Image != null && data.Image.Length > 0)
             {
-                return BadRequest("Invalid image file.");
+                blobUrl = await _imageUploadService.UploadImageToBlobStorageAsync(data.Item.Name, data.Image);
             }
-
-            // Upload to Blob Storage
-            var blobUrl = await ContainerService.UploadImageToBlobStorageAsync(image);
 
             // Return the URL to the frontend
             return Ok(new { url = blobUrl });

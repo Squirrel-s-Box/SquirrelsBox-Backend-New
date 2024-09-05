@@ -37,6 +37,7 @@ namespace SquirrelsBox.Storage.Resources
     {
         public int? SectionId { get; set; }
         public UpdateItemResource? Item { get; set; }
+        public IFormFile? Image { get; set; }
     }
 
     public class UpdateItemResource

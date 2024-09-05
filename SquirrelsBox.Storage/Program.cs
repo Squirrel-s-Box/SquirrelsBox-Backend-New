@@ -1,3 +1,4 @@
+using Base.AzureServices.BlobStorage;
 using Base.Generic.Domain.Repositories;
 using Base.Generic.Domain.Services;
 using Base.Generic.Persistence.Repositories;
@@ -52,9 +53,29 @@ builder.Services.AddScoped<IGenericReadService<SectionItemRelationship, SectionI
 builder.Services.AddScoped<IGenericServiceWithMassive<Spec, ItemSpecRelationshipResponse>, SpecService>();
 builder.Services.AddScoped<IGenericReadService<Spec, ItemSpecRelationshipResponse>, SpecService>();
 
+builder.Services.AddScoped<IContainerService, ContainerService>();
+
 builder.Services.AddScoped<IUnitOfWork<AppDbContext>, UnitOfWork<AppDbContext>>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddHttpClient();
+
+if (environment.IsDevelopment())
+{
+    // Register BlobStorageCredentials configuration for development environment
+    builder.Services.Configure<BlobStorageCredentials>(builder.Configuration.GetSection("BlobStorage"));
+}
+else
+{
+    // Optionally configure for production, or load from environment variables as needed
+    var blobStorageConnectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
+    var blobStorageContainerName = Environment.GetEnvironmentVariable("BlobStorageContainerName");
+
+    builder.Services.Configure<BlobStorageCredentials>(options =>
+    {
+        options.ConnectionString = blobStorageConnectionString;
+        options.ContainerName = blobStorageContainerName;
+    });
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {

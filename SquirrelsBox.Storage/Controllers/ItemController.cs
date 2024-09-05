@@ -8,6 +8,7 @@ using SquirrelsBox.Storage.Domain.Communication;
 using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Resources;
 using Base.AzureServices.BlobStorage;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SquirrelsBox.Storage.Controllers
 {
@@ -18,12 +19,14 @@ namespace SquirrelsBox.Storage.Controllers
         private readonly IGenericService<SectionItemRelationship, SectionItemRelationshipResponse> _service;
         private readonly IGenericReadService<SectionItemRelationship, SectionItemRelationshipResponse> _readService;
         private readonly IMapper _mapper;
+        private readonly IContainerService _imageUploadService;
 
-        public ItemController(IGenericService<SectionItemRelationship, SectionItemRelationshipResponse> service, IGenericReadService<SectionItemRelationship, SectionItemRelationshipResponse> readService, IMapper mapper)
+        public ItemController(IGenericService<SectionItemRelationship, SectionItemRelationshipResponse> service, IGenericReadService<SectionItemRelationship, SectionItemRelationshipResponse> readService, IMapper mapper, IContainerService imageUploadService)
         {
             _service = service;
             _readService = readService;
             _mapper = mapper;
+            _imageUploadService = imageUploadService;
         }
 
         [HttpGet("sectionlist/{sectionId}")]
@@ -43,7 +46,7 @@ namespace SquirrelsBox.Storage.Controllers
             string? blobUrl = string.Empty;
             if (data.Image != null && data.Image.Length > 0)
             {
-                blobUrl = await ContainerService.UploadImageToBlobStorageAsync(data.Image);
+                blobUrl = await _imageUploadService.UploadImageToBlobStorageAsync(data.Item.Name, data.Image);
             }
 
             data.Item.ItemPhoto = blobUrl;
@@ -58,10 +61,18 @@ namespace SquirrelsBox.Storage.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAsync([FromBody] UpdateSectionItemListResource data, int id)
+        public async Task<IActionResult> PutAsync([FromForm] UpdateSectionItemListResource data, int id)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
+
+            string? blobUrl = string.Empty;
+            if (data.Image != null && data.Image.Length > 0)
+            {
+                blobUrl = await _imageUploadService.UploadImageToBlobStorageAsync(data.Item.Name, data.Image);
+            }
+
+            data.Item.ItemPhoto = blobUrl;
 
             var model = _mapper.Map<UpdateSectionItemListResource, SectionItemRelationship>(data);
             model.Item.Id = id;

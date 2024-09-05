@@ -108,7 +108,10 @@ namespace SquirrelsBox.Storage.Services
                     result.Item.Name = model.Item.Name;
                     result.Item.Description = model.Item.Description;
                     result.Item.Amount = model.Item.Amount;
-                    result.Item.ItemPhoto = model.Item.ItemPhoto;
+                    if (model.Item.ItemPhoto != null)
+                    {
+                        result.Item.ItemPhoto = model.Item.ItemPhoto;
+                    }
                     result.Item.Active = model.Item.Active;
                     result.Item.LastUpdateDate = DateTime.UtcNow;
                 }
