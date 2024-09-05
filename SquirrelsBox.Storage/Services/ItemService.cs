@@ -1,5 +1,6 @@
 ﻿using Base.Generic.Domain.Repositories;
 using Base.Generic.Domain.Services;
+using Microsoft.IdentityModel.Tokens;
 using SquirrelsBox.Storage.Domain.Communication;
 using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Persistence.Context;
@@ -108,7 +109,7 @@ namespace SquirrelsBox.Storage.Services
                     result.Item.Name = model.Item.Name;
                     result.Item.Description = model.Item.Description;
                     result.Item.Amount = model.Item.Amount;
-                    if (model.Item.ItemPhoto != null)
+                    if (model.Item.ItemPhoto.IsNullOrEmpty())
                     {
                         result.Item.ItemPhoto = model.Item.ItemPhoto;
                     }
