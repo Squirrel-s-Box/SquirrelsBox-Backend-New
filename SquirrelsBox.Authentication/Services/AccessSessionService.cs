@@ -105,10 +105,9 @@ namespace SquirrelsBox.Authentication.Services
                     Role = UserRole.User
                 };
 
-                result.Code = AESEncDec.AESEncryption(model.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
+                result.Code = AESEncDec.AESEncryption(result.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
                 var newToken = JwtTokenGenerator.CreateToken(jwtAccess, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
-                //Arreglar Key Uniqueness, cuando se descomenta se muestra un error de uestar usando un mismo codigo para acceder REVISAR
-                //await _unitOfWork.CompleteAsync();
+                await _unitOfWork.CompleteAsync();
 
                 return new AccessSessionResponse(result, newToken);
             }
