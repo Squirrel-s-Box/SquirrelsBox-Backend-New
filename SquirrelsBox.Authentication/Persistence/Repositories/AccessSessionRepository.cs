@@ -91,16 +91,15 @@ namespace SquirrelsBox.Authentication.Persistence.Repositories
 
         public async Task<AccessSession> LogIn(AccessSession model)
         {
-            var user = await _context.AccessSessions.FirstOrDefaultAsync(u => u.Username == model.Username);
+            var user = await _context.AccessSessions.FirstOrDefaultAsync(u => u.Username == model.Username && u.Password == model.Password);
             if (user != null)
             {
-
+                return user;
             }
             else
             {
                 throw new UnauthorizedAccessException("Invalid username or password.");
             }
-            return user;
         }
     }
 }
