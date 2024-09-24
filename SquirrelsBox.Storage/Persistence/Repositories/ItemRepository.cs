@@ -1,8 +1,10 @@
 ﻿using Base.Generic.Domain.Repositories;
 using Base.Generic.Persistence.Repositories;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Persistence.Context;
+using System.Data;
 
 namespace SquirrelsBox.Storage.Persistence.Repositories
 {
@@ -22,10 +24,73 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
 
         public async Task DeleteAsync(SectionItemRelationship model)
         {
-            //_context.SectionsItemsList.Remove(model);
-            _context.Items.Remove(model.Item);
-             await _context.SaveChangesAsync();
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // Check if the model is not null
+                if (model == null) throw new ArgumentNullException(nameof(model));
+
+                // Prepare deletion data for logging (Section, Item, Specs)
+                var logDeletionData = new DataTable();
+                logDeletionData.Columns.Add("SectionId", typeof(int));
+                logDeletionData.Columns.Add("ItemId", typeof(int));
+                logDeletionData.Columns.Add("SpecId", typeof(int));
+
+                // Retrieve the related BoxId
+                var boxId = await _context.Boxes
+                    .Where(box => box.BoxSectionsList
+                        .Any(bsr => bsr.Section.SectionItemsList
+                            .Any(sir => sir.Item.Id == model.ItemId)))
+                    .Select(box => box.Id)
+                    .FirstOrDefaultAsync();
+
+                // Add the SectionId and ItemId to the log
+                logDeletionData.Rows.Add(model.SectionId, model.ItemId, DBNull.Value);
+
+                // Get all related Specs to log and delete
+                var specIds = await _context.PersonalizedSpecs
+                    .Where(spec => spec.ItemId == model.ItemId)
+                    .Select(spec => spec.Id)
+                    .ToListAsync();
+
+                foreach (var specId in specIds)
+                {
+                    // Log each spec being deleted
+                    logDeletionData.Rows.Add(model.SectionId, model.ItemId, specId);
+                }
+
+                // Create SQL parameter for logging procedure
+                var deletionDataParam = new SqlParameter("@DeletionData", logDeletionData)
+                {
+                    SqlDbType = SqlDbType.Structured,
+                    TypeName = "dbo.LogBoxDeletionType"
+                };
+
+                var userCode = "Prueba456"; // Hardcoded user code (can be dynamic)
+
+                // Call the stored procedure to log the deletion
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC sp_LogBoxDeletion @UserCode = {0}, @BoxId = {1}, @DeletionData = @DeletionData, @LogBoxDeletion = 0;",
+                    userCode, boxId, deletionDataParam);
+
+                // Remove the item itself
+                _context.Items.Remove(model.Item);
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+
+                // Commit the transaction
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                // Log the exception for debugging purposes (implement your logging mechanism here)
+                throw new InvalidOperationException("An error occurred while deleting the item.", ex);
+            }
         }
+
 
         public Task<SectionItemRelationship> FindByCodeAsync(string value)
         {

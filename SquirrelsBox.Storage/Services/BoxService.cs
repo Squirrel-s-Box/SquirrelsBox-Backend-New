@@ -93,6 +93,8 @@ namespace SquirrelsBox.Storage.Services
         {
             try
             {
+                model.UserCodeLog = "Blabla2";
+
                 model.Favourite = false;
                 model.Active = true;
 

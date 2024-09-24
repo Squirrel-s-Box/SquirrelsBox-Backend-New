@@ -105,9 +105,9 @@ namespace SquirrelsBox.Authentication.Services
                     Role = UserRole.User
                 };
 
+                await _unitOfWork.CompleteAsync();
                 result.Code = AESEncDec.AESEncryption(result.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
                 var newToken = JwtTokenGenerator.CreateToken(jwtAccess, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
-                await _unitOfWork.CompleteAsync();
 
                 return new AccessSessionResponse(result, newToken);
             }

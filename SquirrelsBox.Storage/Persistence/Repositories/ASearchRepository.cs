@@ -1,12 +1,13 @@
 ﻿using Base.Generic.Domain.Repositories;
 using Base.Generic.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
+using SquirrelsBox.Storage.Domain.Interfaces;
 using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Persistence.Context;
 
 namespace SquirrelsBox.Storage.Persistence.Repositories
 {
-    public class ASearchRepository : BaseRepository<AppDbContext>, IGenericSearchRepository
+    public class ASearchRepository : BaseRepository<AppDbContext>, IGenericSearchRepository, IActionLogRepository
     {
         public ASearchRepository(AppDbContext context) : base(context)
         {
@@ -56,5 +57,9 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
             }
         }
 
+        public async Task<IEnumerable<ActionLog>> ReadActionLog(string userCode)
+        {
+            return await _context.ActionLog.Where(x => x.Usercode == userCode).ToListAsync();
+        }
     }
 }

@@ -11,5 +11,7 @@ namespace Base.Generic.Domain.Models
     {
         public DateTime CreationDate { get; set; }
         public DateTime? LastUpdateDate { get; set; }
+        [NotMapped]
+        public string? UserCodeLog { get; set; }
     }
 }

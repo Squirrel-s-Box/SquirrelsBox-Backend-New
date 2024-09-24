@@ -92,21 +92,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-//builder.Services.AddTransient<IImageUploadService>(provider =>
-//{
-//    string blobStorageConnectionString;
-//    if (builder.Environment.IsDevelopment())
-//    {
-//        blobStorageConnectionString = builder.Configuration.GetConnectionString("BlobStorageConnectionString");
-//    }
-//    else
-//    {
-//        blobStorageConnectionString = Environment.GetEnvironmentVariable("BlobStorageConnectionString");
-//    }
-//    string containerName = builder.Configuration["ContainerName"];
-//    return new ImageUploadService(blobStorageConnectionString, containerName);
-//});
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

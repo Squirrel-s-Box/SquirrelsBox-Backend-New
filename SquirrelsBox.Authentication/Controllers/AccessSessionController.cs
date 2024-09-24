@@ -36,14 +36,6 @@ namespace SquirrelsBox.Authentication.Controllers
             return Ok(result);
         }
 
-        //Falta completar
-        [HttpPost("ProveAESToken")]
-        public async Task<IActionResult> ProveAESToken()
-        {
-            var result = true;
-            return Ok(result);
-        }
-
         [HttpPost("Register")]
         public async Task<IActionResult> PostAsync([FromBody] Login request)
         {

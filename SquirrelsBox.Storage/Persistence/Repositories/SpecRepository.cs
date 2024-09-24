@@ -1,8 +1,10 @@
 ﻿using Base.Generic.Domain.Repositories;
 using Base.Generic.Persistence.Repositories;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Persistence.Context;
+using System.Data;
 
 namespace SquirrelsBox.Storage.Persistence.Repositories
 {
@@ -19,14 +21,73 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
 
         public async Task DeleteteMassiveAsync(ICollection<int> ids)
         {
-            var existingEntities = await _context.PersonalizedSpecs
-                                                        .Where(spec => ids.Contains(spec.Id))
-                                                        .ToListAsync();
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            _context.PersonalizedSpecs.RemoveRange(existingEntities);
+            try
+            {
+                // Fetch existing specifications to delete
+                var existingEntities = await _context.PersonalizedSpecs
+                    .Where(spec => ids.Contains(spec.Id))
+                    .ToListAsync();
 
-            await _context.SaveChangesAsync();
+                // Prepare deletion data for logging
+                var logDeletionData = new DataTable();
+                logDeletionData.Columns.Add("SectionId", typeof(int));
+                logDeletionData.Columns.Add("ItemId", typeof(int));
+                logDeletionData.Columns.Add("SpecId", typeof(int));
+
+                var userCode = "Prueba456"; // PRUEBA
+
+                var relatedData = await _context.BoxesSectionsList
+                    .Where(bsr => bsr.Section.SectionItemsList
+                        .Any(sir => sir.Item.Specs
+                            .Any(spec => ids.Contains(spec.Id))))
+                    .Select(bsr => new
+                    {
+                        BoxId = bsr.BoxId,
+                        SectionId = bsr.SectionId,
+                        ItemId = bsr.Section.SectionItemsList
+                            .Where(sir => sir.Item.Specs
+                                .Any(spec => ids.Contains(spec.Id)))
+                            .Select(sir => sir.ItemId)
+                            .FirstOrDefault()
+                    })
+                    .FirstOrDefaultAsync();
+
+                // Populate the DataTable with SpecIds
+                foreach (var specId in ids)
+                {
+                    logDeletionData.Rows.Add(relatedData.SectionId, relatedData.ItemId, specId);
+                }
+
+                // Create parameter for logging procedure
+                var deletionDataParam = new SqlParameter("@DeletionData", logDeletionData)
+                {
+                    SqlDbType = SqlDbType.Structured,
+                    TypeName = "dbo.LogBoxDeletionType"
+                };
+
+                // Call the logging stored procedure
+                await _context.Database.ExecuteSqlRawAsync(
+                    "EXEC sp_LogBoxDeletion @UserCode = {0}, @BoxId = {1}, @DeletionData = @DeletionData, @LogBoxDeletion = 0;",
+                    userCode, relatedData.BoxId, deletionDataParam // Pass the actual BoxId here
+                );
+
+                // Remove existing specifications
+                _context.PersonalizedSpecs.RemoveRange(existingEntities);
+                await _context.SaveChangesAsync();
+
+                // Commit the transaction
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                // Log the exception for debugging purposes (implement your logging mechanism here)
+                throw new InvalidOperationException("An error occurred while deleting the specifications.", ex);
+            }
         }
+
         public async Task<IEnumerable<Spec>> ListAllByIdAsync(int id)
         {
             return await _context.PersonalizedSpecs
