@@ -102,7 +102,7 @@ builder.Services.Configure<AESConstantes>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new() { Title = "Squirrel's Box API", Version = "v1" });
+    c.SwaggerDoc("v1", new() { Title = "Squirrel's Box Authentication API", Version = "v1" });
 
     // Define the OAuth2.0 scheme that's in use (i.e., Implicit Flow)
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

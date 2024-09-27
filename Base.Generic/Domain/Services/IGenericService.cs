@@ -13,18 +13,18 @@ namespace Base.Generic.Domain.Services
         Task<R> FindByIdAsync(int id);
         Task<R> FindByCodeAsync(string value);
         Task<R> UpdateAsync(int id, T model);
-        Task<R> DeleteAsync(int id);
+        Task<R> DeleteAsync(int id, string token = null);
     }
 
     public interface IGenericServiceWithCascade<T, R> : IGenericService<T, R>
     {
-        Task<R> DeleteCascadeAsync(int id, bool cascade = false);
+        Task<R> DeleteCascadeAsync(int id, string userCode, bool cascade = false);
     }
 
     public interface IGenericServiceWithMassive<T, R>
     {
         Task<R> SaveMassiveAsync(ICollection<T> modelList);
         Task<R> UpdateMassiveAsync(ICollection<T> modelList);
-        Task<R> DeleteteMassiveAsync(ICollection<int> ids);
+        Task<R> DeleteteMassiveAsync(ICollection<int> ids, string token);
     }
 }

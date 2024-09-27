@@ -17,7 +17,7 @@ namespace SquirrelsBox.Authentication.Services
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
-        public async Task<UserDataResponse> DeleteAsync(int id)
+        public async Task<UserDataResponse> DeleteAsync(int id, string token = null)
         {
             var result = await _repository.FindByIdAsync(id);
             if (result == null)

@@ -19,7 +19,7 @@ namespace SquirrelsBox.Authentication.Services
             _unitOfWork = unitOfWork;
         }
 
-        public Task<AssignedPermissionResponse> DeleteAsync(int id)
+        public Task<AssignedPermissionResponse> DeleteAsync(int id, string token = null)
         {
             throw new NotImplementedException();
         }

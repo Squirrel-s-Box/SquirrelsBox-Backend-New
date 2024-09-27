@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Base.Generic.Extensions;
 using SquirrelsBox.Storage.Domain.Models;
+using System.Reflection.Emit;
 
 namespace SquirrelsBox.Storage.Persistence.Context
 {
@@ -66,6 +67,7 @@ namespace SquirrelsBox.Storage.Persistence.Context
 
             builder.Entity<Box>(entity =>
             {
+                entity.ToTable(tb => tb.HasTrigger("trg_AfterInsertUpdate_Boxes"));
                 entity.ToTable("boxes");
                 entity.HasKey(p => p.Id);
                 entity.Property(p => p.Id).IsRequired().ValueGeneratedOnAdd();
@@ -89,6 +91,7 @@ namespace SquirrelsBox.Storage.Persistence.Context
 
             builder.Entity<Section>(entity =>
             {
+                entity.ToTable(tb => tb.HasTrigger("trg_AfterInsertUpdate_Sections"));
                 entity.ToTable("sections");
                 entity.HasKey(p => p.Id);
                 entity.Property(p => p.Id).IsRequired().ValueGeneratedOnAdd();
@@ -111,6 +114,7 @@ namespace SquirrelsBox.Storage.Persistence.Context
 
             builder.Entity<Item>(entity =>
             {
+                entity.ToTable(tb => tb.HasTrigger("trg_AfterInsertUpdate_Items"));
                 entity.ToTable("items");
                 entity.HasKey(p => p.Id);
                 entity.Property(p => p.Id).IsRequired().ValueGeneratedOnAdd();
@@ -135,6 +139,7 @@ namespace SquirrelsBox.Storage.Persistence.Context
 
             builder.Entity<Spec>(entity =>
             {
+                entity.ToTable(tb => tb.HasTrigger("trg_AfterInsertUpdate_Specs"));
                 entity.ToTable("personalized_specs");
                 entity.HasKey(p => p.Id);
                 entity.Property(p => p.Id).IsRequired().ValueGeneratedOnAdd();

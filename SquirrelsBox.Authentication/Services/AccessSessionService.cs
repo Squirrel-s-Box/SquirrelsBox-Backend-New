@@ -12,6 +12,7 @@ using SquirrelsBox.Authentication.Domain.Models;
 using SquirrelsBox.Authentication.Persistence.Context;
 using SquirrelsBox.Authentication.Persistence.Repositories;
 using System.Diagnostics;
+using System.Security.Claims;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace SquirrelsBox.Authentication.Services
@@ -33,7 +34,7 @@ namespace SquirrelsBox.Authentication.Services
             _jwtAccess = jwtAccess;
         }
 
-        public async Task<AccessSessionResponse> DeleteAsync(int id)
+        public async Task<AccessSessionResponse> DeleteAsync(int id, string token = null)
         {
             var result = await _repository.FindByIdAsync(id);
             if (result == null)
@@ -92,6 +93,7 @@ namespace SquirrelsBox.Authentication.Services
             {
                 var result = await _accessSesionRepository.LogIn(model);
                 var newRefreshToken = JwtTokenGenerator.CreateRefreshToken();
+                model.RefreshToken = AESEncDec.AESDecryption(model.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
                 var refreshTokenVerificationResult = await _accessSesionRepository.VerifyAndReplaceRefreshTokenAsync(result.RefreshToken, newRefreshToken);
 
                 if (!refreshTokenVerificationResult)
@@ -99,16 +101,20 @@ namespace SquirrelsBox.Authentication.Services
                     throw new InvalidOperationException("Invalid refresh token.");
                 }
 
+                result.Code = AESEncDec.AESEncryption(result.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
+
                 JwtAccess jwtAccess = new JwtAccess
                 {
                     UserCode = result.Code,
                     Role = UserRole.User
                 };
 
-                await _unitOfWork.CompleteAsync();
-                result.Code = AESEncDec.AESEncryption(result.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
-                var newToken = JwtTokenGenerator.CreateToken(jwtAccess, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+                result.Code = AESEncDec.AESDecryption(result.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
 
+                await _unitOfWork.CompleteAsync();
+                var newToken = JwtTokenGenerator.CreateToken(jwtAccess, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+                result.Code = AESEncDec.AESEncryption(result.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
+                result.RefreshToken = AESEncDec.AESEncryption(result.RefreshToken, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
                 return new AccessSessionResponse(result, newToken);
             }
             catch (Exception e)
@@ -127,14 +133,8 @@ namespace SquirrelsBox.Authentication.Services
                 model.LastUpdateDate = null;
                 model.Code = Guid.NewGuid().ToString();
 
-                //do
-                //{
-                //    model.Code = Guid.NewGuid().ToString();
-                //    verification = await _repository.FindByCodeAsync(model.Code);
-                //} while (verification != null);
-
-                var refreshToken = JwtTokenGenerator.CreateRefreshToken();
-                model.RefreshToken = refreshToken;
+                var newRefreshToken = JwtTokenGenerator.CreateRefreshToken();
+                model.RefreshToken = newRefreshToken;
 
                 await _repository.AddAsync(model);
                 await _unitOfWork.CompleteAsync();
@@ -146,6 +146,8 @@ namespace SquirrelsBox.Authentication.Services
                 };
 
                 model.Code = AESEncDec.AESEncryption(model.Code, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
+                model.RefreshToken = AESEncDec.AESEncryption(newRefreshToken, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
+
                 var token = JwtTokenGenerator.CreateToken(jwtAccess, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
 
                 return new AccessSessionResponse(model, token);
@@ -195,7 +197,8 @@ namespace SquirrelsBox.Authentication.Services
         {
             var newRefreshToken = JwtTokenGenerator.CreateRefreshToken();
 
-            var refreshTokenVerificationResult = await _accessSesionRepository.VerifyAndReplaceRefreshTokenAsync(refreshToken, newRefreshToken);
+            var oldRefreshToken = AESEncDec.AESDecryption(refreshToken, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
+            var refreshTokenVerificationResult = await _accessSesionRepository.VerifyAndReplaceRefreshTokenAsync(oldRefreshToken, newRefreshToken);
 
             if (!refreshTokenVerificationResult)
             {
@@ -208,8 +211,9 @@ namespace SquirrelsBox.Authentication.Services
                 Role = UserRole.User
             };
 
-            var newToken = JwtTokenGenerator.CreateToken(jwtAccess, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
             await _unitOfWork.CompleteAsync();
+            var newToken = JwtTokenGenerator.CreateToken(jwtAccess, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+            newRefreshToken = AESEncDec.AESEncryption(newRefreshToken, _encryptionSettings.Value.Key, _encryptionSettings.Value.IV);
 
             return new AccessTokenResponse(newToken, newRefreshToken);
         }

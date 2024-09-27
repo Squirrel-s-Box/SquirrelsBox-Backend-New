@@ -10,7 +10,7 @@ namespace SquirrelsBox.Storage.Domain.Models
         public string Amount { get; set; }
         public string? ItemPhoto { get; set; }
         public bool Active { get; set; }
-
+        public string? UserCodeLog { get; set; }
         public ICollection<SectionItemRelationship> SectionItemsList { get; set; }
         public ICollection<Spec> Specs { get; set; }
     }

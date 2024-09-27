@@ -20,7 +20,7 @@ namespace SquirrelsBox.Authentication.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<UserSessionResponse> DeleteAsync(int id)
+        public async Task<UserSessionResponse> DeleteAsync(int id, string token = null)
         {
             var result = await _userSessionService.GetUserSessionByUserIdAsync(id);
             if (result == null)

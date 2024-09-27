@@ -1,5 +1,7 @@
 ﻿using Base.Generic.Domain.Repositories;
 using Base.Generic.Domain.Services;
+using Base.Security.Sha256M;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SquirrelsBox.Storage.Domain.Communication;
 using SquirrelsBox.Storage.Domain.Models;
@@ -12,19 +14,23 @@ namespace SquirrelsBox.Storage.Services
         private readonly IGenericRepository<SectionItemRelationship> _repository;
         private readonly IGenericReadRepository<SectionItemRelationship> _readRepository;
         private readonly IUnitOfWork<AppDbContext> _unitOfWork;
+        private readonly IOptions<JwtKeys> _jwtAccess;
 
-        public ItemService(IGenericRepository<SectionItemRelationship> repository, IGenericReadRepository<SectionItemRelationship> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
+        public ItemService(IGenericRepository<SectionItemRelationship> repository, IGenericReadRepository<SectionItemRelationship> readRepository, IUnitOfWork<AppDbContext> unitOfWork, IOptions<JwtKeys> jwtAccess)
         {
             _repository = repository;
             _readRepository = readRepository;
             _unitOfWork = unitOfWork;
+            _jwtAccess = jwtAccess;
         }
 
-        public async Task<SectionItemRelationshipResponse> DeleteAsync(int id)
+        public async Task<SectionItemRelationshipResponse> DeleteAsync(int id, string token)
         {
             var result = await _repository.FindByIdAsync(id);
             if (result == null)
                 return new SectionItemRelationshipResponse("Item not found");
+            var userCode = JwtTokenGenerator.GetUserCodeFromToken(token, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+            result.Item.UserCodeLog = userCode;
 
             try
             {
@@ -75,6 +81,9 @@ namespace SquirrelsBox.Storage.Services
         {
             try
             {
+                var userCode = JwtTokenGenerator.GetUserCodeFromToken(model.Item.UserCodeLog, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+                model.Item.UserCodeLog = userCode;
+
                 model.Item.Active = true;
 
                 model.Item.CreationDate = DateTime.UtcNow;
@@ -99,6 +108,9 @@ namespace SquirrelsBox.Storage.Services
 
             try
             {
+                var userCode = JwtTokenGenerator.GetUserCodeFromToken(model.Item.UserCodeLog, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+                model.Item.UserCodeLog = userCode;
+
                 if (model.SectionId != 0)
                 {
                     //It works as th enew Box Id
@@ -109,7 +121,7 @@ namespace SquirrelsBox.Storage.Services
                     result.Item.Name = model.Item.Name;
                     result.Item.Description = model.Item.Description;
                     result.Item.Amount = model.Item.Amount;
-                    if (model.Item.ItemPhoto.IsNullOrEmpty())
+                    if (model.Item.ItemPhoto == null)
                     {
                         result.Item.ItemPhoto = model.Item.ItemPhoto;
                     }

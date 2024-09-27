@@ -29,7 +29,7 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
                 await _context.BoxesSectionsList.AddAsync(model);
                 await _context.SaveChangesAsync(); // Guardar los cambios después de agregar la relación
 
-                Console.WriteLine("Section and BoxSectionRelationship added successfully.");
+                _context.Entry(model).GetDatabaseValues();
             }
             catch (Exception ex)
             {
@@ -47,7 +47,7 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteCascadeAsync(BoxSectionRelationship model, bool cascade)
+        public async Task DeleteCascadeAsync(BoxSectionRelationship model, string userCode, bool cascade)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -92,7 +92,6 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
                         }
                     }
 
-                    var userCode = "Prueba456"; // Replace with actual user code if available
                     var boxId = await _context.Boxes
                         .Where(box => box.BoxSectionsList.Any(bsr => bsr.SectionId == sectionId))
                         .Select(box => box.Id)
@@ -174,6 +173,7 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
             {
                 _context.Sections.Update(model.Section);
             }
+            _context.Entry(model).GetDatabaseValues();
         }
 
     }

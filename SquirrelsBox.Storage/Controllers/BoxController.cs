@@ -7,11 +7,13 @@ using SquirrelsBox.Storage.Domain.Communication;
 using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Resources;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SquirrelsBox.Storage.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class BoxController : ControllerBase
     {
         private readonly IGenericServiceWithCascade<Box, BoxResponse> _service;
@@ -54,6 +56,8 @@ namespace SquirrelsBox.Storage.Controllers
 
             var model = _mapper.Map<SaveBoxResource, Box>(data);
             model.UserCodeOwner = userCode;
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            model.UserCodeLog = token;
 
             var result = await _service.SaveAsync(model);
             if (!result.Success)
@@ -69,6 +73,9 @@ namespace SquirrelsBox.Storage.Controllers
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
             var model = _mapper.Map<UpdateBoxResource, Box>(data);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            model.UserCodeLog = token;
+
             var result = await _service.UpdateAsync(id, model);
 
             if (!result.Success)
@@ -84,7 +91,8 @@ namespace SquirrelsBox.Storage.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
-            var result = await _service.DeleteCascadeAsync(id, cascade);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var result = await _service.DeleteCascadeAsync(id, token, cascade);
 
             if (!result.Success)
                 return BadRequest(result.Message);

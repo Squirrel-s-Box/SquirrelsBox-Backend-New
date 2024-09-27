@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using SquirrelsBox.Storage.Domain.Communication;
 using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Resources;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SquirrelsBox.Storage.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SpecController : ControllerBase
     {
         private readonly IGenericServiceWithMassive<Spec, ItemSpecRelationshipResponse> _service;
@@ -38,8 +40,12 @@ namespace SquirrelsBox.Storage.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
-
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var model = _mapper.Map<ICollection<SaveSpecResource>, ICollection<Spec>>(data.Specs);
+            foreach (var spec in model)
+            {
+                spec.UserCodeLog = token;
+            }
 
             var result = await _service.SaveMassiveAsync(model);
             if (!result.Success)
@@ -70,7 +76,8 @@ namespace SquirrelsBox.Storage.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
-            var result = await _service.DeleteteMassiveAsync(data.Ids);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var result = await _service.DeleteteMassiveAsync(data.Ids, token);
 
             if (!result.Success)
                 return BadRequest(result.Message);

@@ -9,11 +9,13 @@ using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Resources;
 using Base.AzureServices.BlobStorage;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SquirrelsBox.Storage.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ItemController : ControllerBase
     {
         private readonly IGenericService<SectionItemRelationship, SectionItemRelationshipResponse> _service;
@@ -50,8 +52,9 @@ namespace SquirrelsBox.Storage.Controllers
             }
 
             data.Item.ItemPhoto = blobUrl;
-
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var model = _mapper.Map<SaveSectionItemResource, SectionItemRelationship>(data);
+            model.Item.UserCodeLog = token;
 
             var result = await _service.SaveAsync(model);
             if (!result.Success)
@@ -73,9 +76,10 @@ namespace SquirrelsBox.Storage.Controllers
             }
 
             data.Item.ItemPhoto = blobUrl;
-
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var model = _mapper.Map<UpdateSectionItemListResource, SectionItemRelationship>(data);
             model.Item.Id = id;
+            model.Item.UserCodeLog = token;
             var result = await _service.UpdateAsync(id, model);
 
             if (!result.Success)
@@ -91,7 +95,8 @@ namespace SquirrelsBox.Storage.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
-            var result = await _service.DeleteAsync(id);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var result = await _service.DeleteAsync(id, token);
 
             if (!result.Success)
                 return BadRequest(result.Message);

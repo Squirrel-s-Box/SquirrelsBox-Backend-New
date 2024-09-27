@@ -72,5 +72,86 @@ namespace Base.Security.Sha256M
                 return Convert.ToBase64String(randomNumber);
             }
         }
+
+        public static ClaimsPrincipal GetPrincipalFromToken(string token, string jwtKey, string issuer, string audience)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(jwtKey);
+
+            try
+            {
+                // Validate token
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero // No tolerance for the token expiration
+                };
+
+                // Extract principal (claims)
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+                // Additional check to make sure token is signed properly
+                if (validatedToken is JwtSecurityToken jwtToken &&
+                    jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return principal;
+                }
+                else
+                {
+                    throw new SecurityTokenException("Invalid token");
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static string GetUserCodeFromToken(string token, string jwtKey, string issuer, string audience)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(jwtKey);
+
+            try
+            {
+                // Validate token
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = issuer,
+                    ValidAudience = audience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero // No tolerance for the token expiration
+                };
+
+                // Extract principal (claims)
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+                // Additional check to make sure token is signed properly
+                if (validatedToken is JwtSecurityToken jwtToken &&
+                    jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var userCodeEncrypted = principal.Claims.First(claim => claim.Type == ClaimTypes.NameIdentifier).Value;
+                    return userCodeEncrypted;
+                }
+                else
+                {
+                    throw new SecurityTokenException("Invalid token");
+                }
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 }

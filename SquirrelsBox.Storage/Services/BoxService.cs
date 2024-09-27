@@ -1,5 +1,7 @@
 ﻿using Base.Generic.Domain.Repositories;
 using Base.Generic.Domain.Services;
+using Base.Security.Sha256M;
+using Microsoft.Extensions.Options;
 using SquirrelsBox.Storage.Domain.Communication;
 using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Persistence.Context;
@@ -11,20 +13,22 @@ namespace SquirrelsBox.Storage.Services
         private readonly IGenericRepositoryWithCascade<Box> _repository;
         private readonly IGenericReadRepository<Box> _readRepository;
         private readonly IUnitOfWork<AppDbContext> _unitOfWork;
-         
-        public BoxService(IGenericRepositoryWithCascade<Box> repository, IGenericReadRepository<Box> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
+        private readonly IOptions<JwtKeys> _jwtAccess;
+
+        public BoxService(IGenericRepositoryWithCascade<Box> repository, IGenericReadRepository<Box> readRepository, IUnitOfWork<AppDbContext> unitOfWork, IOptions<JwtKeys> jwtAccess)
         {
             _repository = repository;
             _readRepository = readRepository;
             _unitOfWork = unitOfWork;
+            _jwtAccess = jwtAccess;
         }
 
-        public Task<BoxResponse> DeleteAsync(int id)
+        public Task<BoxResponse> DeleteAsync(int id, string token = null)
         {
-            throw new NotImplementedException("Use DeleteCascade method instead.");
+            throw new NotImplementedException();
         }
 
-        public async Task<BoxResponse> DeleteCascadeAsync(int id, bool cascade)
+        public async Task<BoxResponse> DeleteCascadeAsync(int id, string token, bool cascade)
         {
             var result = await _repository.FindByIdAsync(id);
             if (result == null)
@@ -32,7 +36,8 @@ namespace SquirrelsBox.Storage.Services
 
             try
             {
-                await _repository.DeleteCascadeAsync(result, cascade);
+                var userCode = JwtTokenGenerator.GetUserCodeFromToken(token, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+                await _repository.DeleteCascadeAsync(result, userCode, cascade);
                 await _unitOfWork.CompleteAsync();
 
                 return new BoxResponse(result);
@@ -93,7 +98,7 @@ namespace SquirrelsBox.Storage.Services
         {
             try
             {
-                model.UserCodeLog = "Blabla2";
+                model.UserCodeLog = JwtTokenGenerator.GetUserCodeFromToken(model.UserCodeLog, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
 
                 model.Favourite = false;
                 model.Active = true;
@@ -120,6 +125,9 @@ namespace SquirrelsBox.Storage.Services
 
             try
             {
+                var userCode = JwtTokenGenerator.GetUserCodeFromToken(model.UserCodeLog, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+
+                result.UserCodeLog = userCode;
                 result.Name = model.Name;
                 result.Favourite = model.Favourite;
                 result.Active = model.Active;

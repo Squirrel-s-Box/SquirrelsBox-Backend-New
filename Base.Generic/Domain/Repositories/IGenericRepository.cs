@@ -17,13 +17,13 @@ namespace Base.Generic.Domain.Repositories
 
     public interface IGenericRepositoryWithCascade<T> : IGenericRepository<T>
     {
-        Task DeleteCascadeAsync(T model, bool cascade = false);
+        Task DeleteCascadeAsync(T model, string userCode, bool cascade = false);
     }
 
     public interface IGenericRepositoryWithMassive<T>
     {
         Task AddMassiveAsync(ICollection<T> modelList);
         Task UpdateMassiveAsync(ICollection<T> modelList);
-        Task DeleteteMassiveAsync(ICollection<int> ids);
+        Task DeleteteMassiveAsync(ICollection<int> ids, string userCode);
     }
 }

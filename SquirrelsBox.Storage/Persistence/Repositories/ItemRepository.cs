@@ -20,6 +20,8 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
             await _context.SaveChangesAsync();
             model.ItemId = ItemCreated.Entity.Id;
             await _context.SectionsItemsList.AddAsync(model);
+
+            _context.Entry(model).GetDatabaseValues();
         }
 
         public async Task DeleteAsync(SectionItemRelationship model)
@@ -67,7 +69,7 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
                     TypeName = "dbo.LogBoxDeletionType"
                 };
 
-                var userCode = "Prueba456"; // Hardcoded user code (can be dynamic)
+                var userCode = model.Item.UserCodeLog;
 
                 // Call the stored procedure to log the deletion
                 await _context.Database.ExecuteSqlRawAsync(
@@ -127,6 +129,8 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
             {
                 _context.Items.Update(model.Item);
             }
+
+            _context.Entry(model).GetDatabaseValues();
         }
     }
 }

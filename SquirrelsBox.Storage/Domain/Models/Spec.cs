@@ -10,6 +10,7 @@ namespace SquirrelsBox.Storage.Domain.Models
         public string ValueType { get; set; }
         public bool Active { get; set; }
         public int ItemId { get; set; }
+        public string? UserCodeLog { get; set; }
 
         public Item Item { get; set; }
     }

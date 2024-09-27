@@ -1,5 +1,7 @@
 ﻿using Base.Generic.Domain.Repositories;
 using Base.Generic.Domain.Services;
+using Base.Security.Sha256M;
+using Microsoft.Extensions.Options;
 using SquirrelsBox.Storage.Domain.Communication;
 using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Persistence.Context;
@@ -11,19 +13,22 @@ namespace SquirrelsBox.Storage.Services
         private readonly IGenericRepositoryWithMassive<Spec> _repository;
         private readonly IGenericReadRepository<Spec> _readRepository;
         private readonly IUnitOfWork<AppDbContext> _unitOfWork;
+        private readonly IOptions<JwtKeys> _jwtAccess;
 
-        public SpecService(IGenericRepositoryWithMassive<Spec> repository, IGenericReadRepository<Spec> readRepository, IUnitOfWork<AppDbContext> unitOfWork)
+        public SpecService(IGenericRepositoryWithMassive<Spec> repository, IGenericReadRepository<Spec> readRepository, IUnitOfWork<AppDbContext> unitOfWork, IOptions<JwtKeys> jwtAccess)
         {
             _repository = repository;
             _readRepository = readRepository;
             _unitOfWork = unitOfWork;
+            _jwtAccess = jwtAccess;
         }
 
-        public async Task<ItemSpecRelationshipResponse> DeleteteMassiveAsync(ICollection<int> ids)
+        public async Task<ItemSpecRelationshipResponse> DeleteteMassiveAsync(ICollection<int> ids, string token)
         {
             try
             {
-                await _repository.DeleteteMassiveAsync(ids);
+                var userCode = JwtTokenGenerator.GetUserCodeFromToken(token, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+                await _repository.DeleteteMassiveAsync(ids, userCode);
                 await _unitOfWork.CompleteAsync();
 
                 return new ItemSpecRelationshipResponse(ids);
@@ -52,6 +57,8 @@ namespace SquirrelsBox.Storage.Services
             {
                 foreach (var model in modelList)
                 {
+                    var userCode = JwtTokenGenerator.GetUserCodeFromToken(model.UserCodeLog, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+                    model.UserCodeLog = userCode;
                     model.Active = true;
                     model.CreationDate = DateTime.UtcNow;
                     model.LastUpdateDate = null;
@@ -70,6 +77,13 @@ namespace SquirrelsBox.Storage.Services
         {
             try
             {
+                foreach (var model in modelList)
+                {
+                    var userCode = JwtTokenGenerator.GetUserCodeFromToken(model.UserCodeLog, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+                    model.UserCodeLog = userCode;
+                    model.LastUpdateDate = DateTime.UtcNow;
+                }
+
                 await _repository.UpdateMassiveAsync(modelList);
 
                 await _unitOfWork.CompleteAsync();

@@ -17,9 +17,15 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
         public async Task AddMassiveAsync(ICollection<Spec> modelList)
         {
             await _context.PersonalizedSpecs.AddRangeAsync(modelList);
+            await _context.SaveChangesAsync();
+
+            foreach (var model in modelList)
+            {
+                await _context.Entry(model).ReloadAsync();
+            }
         }
 
-        public async Task DeleteteMassiveAsync(ICollection<int> ids)
+        public async Task DeleteteMassiveAsync(ICollection<int> ids, string userCode)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -35,8 +41,6 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
                 logDeletionData.Columns.Add("SectionId", typeof(int));
                 logDeletionData.Columns.Add("ItemId", typeof(int));
                 logDeletionData.Columns.Add("SpecId", typeof(int));
-
-                var userCode = "Prueba456"; // PRUEBA
 
                 var relatedData = await _context.BoxesSectionsList
                     .Where(bsr => bsr.Section.SectionItemsList
@@ -110,9 +114,11 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
 
             foreach (var existingEntity in existingEntities)
             {
+                // Find the matching model from the input list
                 var matchingModel = modelList.FirstOrDefault(spec => spec.Id == existingEntity.Id);
                 if (matchingModel != null)
                 {
+                    // Update the properties of the existing entity
                     existingEntity.HeaderName = matchingModel.HeaderName;
                     existingEntity.Value = matchingModel.Value;
                     existingEntity.ValueType = matchingModel.ValueType;
@@ -121,9 +127,13 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
                 }
             }
 
-            _context.PersonalizedSpecs.UpdateRange(existingEntities);
-
             await _context.SaveChangesAsync();
+
+            // Reload the updated entities from the database if necessary
+            foreach (var existingEntity in existingEntities)
+            {
+                await _context.Entry(existingEntity).ReloadAsync();
+            }
         }
 
     }

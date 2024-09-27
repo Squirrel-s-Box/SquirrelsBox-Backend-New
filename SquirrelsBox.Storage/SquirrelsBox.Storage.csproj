@@ -8,12 +8,15 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.6" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.1.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Base.AzureServices\Base.AzureServices.csproj" />
     <ProjectReference Include="..\Base.Generic\Base.Generic.csproj" />
+    <ProjectReference Include="..\Base.Security\Base.Security.csproj" />
   </ItemGroup>
 
 </Project>

@@ -19,7 +19,7 @@ namespace SquirrelsBox.Storage.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<SharedBoxResponse> DeleteAsync(int id)
+        public async Task<SharedBoxResponse> DeleteAsync(int id, string token = null)
         {
             var result = await _repository.FindByIdAsync(id);
             if (result == null)

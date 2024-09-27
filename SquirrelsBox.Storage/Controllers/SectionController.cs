@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using SquirrelsBox.Storage.Domain.Communication;
 using SquirrelsBox.Storage.Domain.Models;
 using SquirrelsBox.Storage.Resources;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SquirrelsBox.Storage.Controllers
 {
@@ -40,6 +41,8 @@ namespace SquirrelsBox.Storage.Controllers
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
             var model = _mapper.Map<SaveBoxSectionsListResource, BoxSectionRelationship>(data);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            model.Section.UserCodeLog = token;
 
             var result = await _service.SaveAsync(model);
             if (!result.Success)
@@ -55,6 +58,8 @@ namespace SquirrelsBox.Storage.Controllers
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
             var model = _mapper.Map<UpdateBoxSectionsListResource, BoxSectionRelationship>(data);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            model.Section.UserCodeLog = token;
             if (data.Section != null)
             {
                 model.Section.Id = id;
@@ -68,13 +73,15 @@ namespace SquirrelsBox.Storage.Controllers
             return Ok(itemResource);
         }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id, bool cascade)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
-            var result = await _service.DeleteCascadeAsync(id, cascade);
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var result = await _service.DeleteCascadeAsync(id, token, cascade);
 
             if (!result.Success)
                 return BadRequest(result.Message);

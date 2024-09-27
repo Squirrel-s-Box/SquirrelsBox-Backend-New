@@ -18,6 +18,7 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
         public async Task AddAsync(Box model)
         {
             await _context.Boxes.AddAsync(model);
+            _context.Entry(model).GetDatabaseValues();
         }
 
         public async Task DeleteAsync(Box model)
@@ -26,7 +27,7 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteCascadeAsync(Box model, bool cascade)
+        public async Task DeleteCascadeAsync(Box model, string userCode, bool cascade)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -83,7 +84,6 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
                         }
                     }
 
-                    var userCode = "Prueba456"; // Replace with actual user code if available
                     var deletionDataParam = new SqlParameter("@DeletionData", logDeletionData)
                     {
                         SqlDbType = SqlDbType.Structured,
@@ -155,6 +155,7 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
         public void Update(Box model)
         {
             _context.Boxes.Update(model);
+            _context.Entry(model).GetDatabaseValues();
         }
     }
 }
