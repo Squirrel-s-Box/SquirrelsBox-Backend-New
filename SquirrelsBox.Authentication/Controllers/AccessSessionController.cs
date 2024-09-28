@@ -88,7 +88,6 @@ namespace SquirrelsBox.Authentication.Controllers
 
             Domain.Models.AccessSession model = new Domain.Models.AccessSession();
             model.Username = request.Username;
-            model.Code = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             byte[] hashedPassword = Sha256Enc.HashPassword(request.Password);
             model.Password = hashedPassword;
             var result = await _accessSessionService.LogIn(model);
