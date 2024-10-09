@@ -1,5 +1,6 @@
 ﻿using Base.Generic.Domain.Repositories;
 using Base.Generic.Domain.Services;
+using Base.Security;
 using Base.Security.Sha256M;
 using Microsoft.Extensions.Options;
 using SquirrelsBox.Storage.Domain.Communication;
@@ -13,13 +14,15 @@ namespace SquirrelsBox.Storage.Services
         private readonly IGenericRepositoryWithCascade<Box> _repository;
         private readonly IGenericReadRepository<Box> _readRepository;
         private readonly IUnitOfWork<AppDbContext> _unitOfWork;
+        private readonly IOptions<AESConstantes> _encryptionSettings;
         private readonly IOptions<JwtKeys> _jwtAccess;
 
-        public BoxService(IGenericRepositoryWithCascade<Box> repository, IGenericReadRepository<Box> readRepository, IUnitOfWork<AppDbContext> unitOfWork, IOptions<JwtKeys> jwtAccess)
+        public BoxService(IGenericRepositoryWithCascade<Box> repository, IGenericReadRepository<Box> readRepository, IUnitOfWork<AppDbContext> unitOfWork, IOptions<AESConstantes> encryptionSettings, IOptions<JwtKeys> jwtAccess)
         {
             _repository = repository;
             _readRepository = readRepository;
             _unitOfWork = unitOfWork;
+            _encryptionSettings = encryptionSettings;
             _jwtAccess = jwtAccess;
         }
 
@@ -99,6 +102,7 @@ namespace SquirrelsBox.Storage.Services
             try
             {
                 model.UserCodeLog = JwtTokenGenerator.GetUserCodeFromToken(model.UserCodeLog, _jwtAccess.Value.Key, _jwtAccess.Value.Issuer, _jwtAccess.Value.Audience);
+                model.UserCodeOwner = model.UserCodeLog;
 
                 model.Favourite = false;
                 model.Active = true;

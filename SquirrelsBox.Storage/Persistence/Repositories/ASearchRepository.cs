@@ -17,8 +17,10 @@ namespace SquirrelsBox.Storage.Persistence.Repositories
         {
             var result = await (from b in _context.Boxes
                                 where b.UserCodeOwner == userCode
-                                join bs in _context.BoxesSectionsList on b.Id equals bs.BoxId
-                                join si in _context.SectionsItemsList on bs.SectionId equals si.SectionId
+                                join bs in _context.BoxesSectionsList on b.Id equals bs.BoxId into boxSections
+                                from bs in boxSections.DefaultIfEmpty()
+                                join si in _context.SectionsItemsList on bs.SectionId equals si.SectionId into sectionItems
+                                from si in sectionItems.DefaultIfEmpty()
                                 group new { b, bs, si } by new { b.Id, b.UserCodeOwner } into g
                                 select new
                                 {

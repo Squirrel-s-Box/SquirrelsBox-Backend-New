@@ -55,7 +55,6 @@ namespace SquirrelsBox.Storage.Controllers
                 return BadRequest(ErrorMessagesExtensions.GetErrorMessages(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList())));
 
             var model = _mapper.Map<SaveBoxResource, Box>(data);
-            model.UserCodeOwner = userCode;
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             model.UserCodeLog = token;
 

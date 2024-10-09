@@ -15,6 +15,5 @@
         public string Lastname { get; set; }
         public string Email { get; set; }
         public string UserPhoto { get; set; }
-        public string UserCode { get; set; }
     }
 }

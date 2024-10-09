@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using SquirrelsBox.Authentication.Domain.Communication;
 using SquirrelsBox.Authentication.Domain.Models;
 using SquirrelsBox.Authentication.Resource;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SquirrelsBox.Authentication.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("/api/[controller]")]
     public class UserDataController : ControllerBase
     {
@@ -23,9 +25,10 @@ namespace SquirrelsBox.Authentication.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet("{userCode}")]
-        public async Task<UserDataResource> GetByCodeAsync(string userCode)
+        [HttpGet]
+        public async Task<UserDataResource> GetByCodeAsync()
         {
+            var userCode = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var model = await _service.FindByCodeAsync(userCode);
             var resources = _mapper.Map<UserData, UserDataResource>(model.Resource);
             return resources;
@@ -47,6 +50,7 @@ namespace SquirrelsBox.Authentication.Controllers
             }
 
             var model = _mapper.Map<SaveUserDataResource, UserData>(resource);
+            model.UserCode = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             var result = await _service.SaveAsync(model);
 
             if (!result.Success)

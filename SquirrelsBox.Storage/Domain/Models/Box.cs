@@ -6,7 +6,7 @@ namespace SquirrelsBox.Storage.Domain.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string UserCodeOwner { get; set; }
+        public string? UserCodeOwner { get; set; }
         public bool Favourite { get; set; }
         public bool Active { get; set; }
         public string? UserCodeLog { get; set; }
